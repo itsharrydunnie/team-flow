@@ -1,5 +1,4 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import appConfig from './configuration/app.config';
@@ -7,6 +6,8 @@ import { validate } from './env.validation';
 import dbConfig from './configuration/db.config';
 import { PrismaModule } from './prisma/prisma.module';
 import { HealthModule } from './health/health.module';
+import { AuthModule } from './auth/auth.module';
+import { MiddlewareModule } from './middleware/middleware.module';
 
 @Module({
   imports: [
@@ -18,8 +19,8 @@ import { HealthModule } from './health/health.module';
     }),
     PrismaModule,
     HealthModule,
+    AuthModule,
   ],
-  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
