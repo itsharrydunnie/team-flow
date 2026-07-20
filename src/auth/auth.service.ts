@@ -8,12 +8,14 @@ import { AuthDto } from './auth.dto';
 import bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private userService: UsersService,
   ) {}
 
   private async hashPasword(password: string): Promise<string> {
@@ -66,5 +68,25 @@ export class AuthService {
     const refreshToken = await this.signRefreshToken({ userId: user.id });
     console.log('new user:', user);
     return { accessToken, refreshToken };
+  }
+
+  async validateUser(email: string, pass: string): Promise<any> {
+    const user = await this.userService.findUser(email);
+    if (user) {
+      const comparedHash = await bcrypt.compare(pass, user.passwordHash);
+      // remove sensitive data like password
+      return user;
+    }
+    return null;
+  }
+
+  async loginUser(user: any) {
+    const { id, email } = user;
+    const accessToken = await this.signAccessToken({ userId: id, email });
+    const refreshToken = await this.signRefreshToken({ userId: id });
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }
