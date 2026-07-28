@@ -22,7 +22,7 @@ export class AuthJwtStrategy extends PassportStrategy(Strategy) {
     });
   }
   async validate(payload: any) {
-    const user = await this.userService.findUser(payload.email);
+    const user = await this.userService.findUserByEmail(payload.email);
     // Remove Sensitive info like Password
     return { user };
   }

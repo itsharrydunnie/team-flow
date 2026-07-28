@@ -11,6 +11,8 @@ import { AuthDto } from './auth.dto';
 import { CheckAuth, JwtAuthGuard, LocalAuthGuard } from './auth.gaurd';
 import { ValidateRegisterDTO } from 'src/pipe/validation.pipe';
 import { AuthGuard } from '@nestjs/passport';
+import { CurrentUser } from './auth.decorator';
+import type { User } from 'src/users/user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -38,12 +40,13 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getCurrentUser(@Request() req) {
+  async getCurrentUser(@CurrentUser() user: User) {
     // all user data
-    return req.user;
+    return user;
   }
 
   @Post('refresh')
-  // validate refresh token before invoking method
-  getFreshAccessToken(@Body() refreshToken) {}
+  refresh(@Body() body: { refreshToken: string }) {
+    return this.authService.refresh(body.refreshToken);
+  }
 }

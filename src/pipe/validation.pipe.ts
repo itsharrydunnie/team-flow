@@ -28,13 +28,3 @@ export class ValidateRegisterDTO implements PipeTransform {
     return extractedErrors;
   }
 }
-
-@Injectable()
-export class ValidateRefreshToken implements PipeTransform {
-  async transform(value: any, metadata: ArgumentMetadata) {
-    // validate refresh token against
-    //Expired refresh token
-    // Invalid refresh token
-    // Access token passed to refresh endpoint
-  }
-}

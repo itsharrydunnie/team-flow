@@ -2,11 +2,17 @@ import {
   Injectable,
   ForbiddenException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthDto } from './auth.dto';
 import bcrypt from 'bcryptjs';
-import { JwtService } from '@nestjs/jwt';
+import {
+  JsonWebTokenError,
+  JwtService,
+  NotBeforeError,
+  TokenExpiredError,
+} from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
 
@@ -47,9 +53,22 @@ export class AuthService {
 
   async validateToken(token: string): Promise<any> {
     try {
-      return this.jwtService.verifyAsync(token);
+      const payload = await this.jwtService.verifyAsync(token);
+      return payload;
     } catch (error) {
-      throw new UnauthorizedException('Invalid or expired token');
+      if (error instanceof TokenExpiredError) {
+        throw new UnauthorizedException('Refresh token expired');
+      }
+
+      if (error instanceof JsonWebTokenError) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      if (error instanceof NotBeforeError) {
+        throw new UnauthorizedException('Refresh token not active');
+      }
+
+      throw new UnauthorizedException();
     }
   }
 
@@ -57,27 +76,38 @@ export class AuthService {
     dto: AuthDto,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const hashedPassword = await this.hashPasword(dto.password);
+    //check for duplicate email
+    const checkUser = await this.userService.findUserByEmail(dto.email);
+
+    if (checkUser) {
+      throw new BadRequestException('Duplicate email');
+    }
 
     const user = await this.prisma.user.create({
       data: { email: dto.email, passwordHash: hashedPassword },
     });
+
     const accessToken = await this.signAccessToken({
       userId: user.id,
       email: user.email,
     });
+
     const refreshToken = await this.signRefreshToken({ userId: user.id });
-    console.log('new user:', user);
+
     return { accessToken, refreshToken };
   }
 
   async validateUser(email: string, pass: string): Promise<any> {
-    const user = await this.userService.findUser(email);
+    const user = await this.userService.findUserByEmail(email);
     if (user) {
       const comparedHash = await bcrypt.compare(pass, user.passwordHash);
+      if (!comparedHash) {
+        throw new BadRequestException('Incorrect password or email');
+      }
       // remove sensitive data like password
       return user;
     }
-    return null;
+    throw new BadRequestException('Incorrect email or password');
   }
 
   async loginUser(user: any) {
@@ -88,5 +118,37 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  async refresh(refreshToken: string) {
+    const { sub, type } = await this.validateToken(refreshToken);
+
+    if (type !== 'refresh') {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const user = await this.userService.findUserById(sub);
+    // compare against stored/hashed refresh token
+
+    // ↓
+    // if mismatch -> Unauthorized
+
+    // ↓
+    // generate new access token
+
+    // ↓
+    // (optional) rotate refresh token
+
+    // new access token
+
+    if (!user) {
+      throw new UnauthorizedException("could'nt find user"); // should change for better error msg
+    }
+    const accessToken = await this.signAccessToken({
+      userId: user.id,
+      email: user.email,
+    });
+
+    return { accessToken };
   }
 }

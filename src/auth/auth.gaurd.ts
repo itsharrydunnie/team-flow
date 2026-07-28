@@ -4,9 +4,10 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class CheckAuth implements CanActivate {
@@ -37,4 +38,29 @@ export class CheckAuth implements CanActivate {
 export class LocalAuthGuard extends AuthGuard('local') {}
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {}
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    // custom authentication logic
+
+    return super.canActivate(context);
+  }
+
+  handleRequest<TUser = any>(
+    err: any,
+    user: any,
+    info: any,
+    context: ExecutionContext,
+    status?: any,
+  ): TUser {
+    if (info instanceof TokenExpiredError) {
+      throw new UnauthorizedException('Access token expired');
+    }
+    if (info instanceof JsonWebTokenError) {
+      throw new UnauthorizedException('Invalid token');
+    }
+    console.log(user, 'jhg');
+    return user;
+  }
+}
