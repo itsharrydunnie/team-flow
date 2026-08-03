@@ -13,8 +13,8 @@ import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { JwtAuthGuard } from 'src/auth/auth.gaurd';
 import { CurrentUser } from 'src/auth/auth.decorator';
-import type { User } from 'src/users/user.dto';
-import { ValidateDTO } from 'src/pipe/validation.pipe';
+import { ValidateDTO } from 'src/common/pipe/validation.pipe';
+import type { User } from 'generated/prisma/client';
 
 @Controller('organizations')
 @UseGuards(JwtAuthGuard)

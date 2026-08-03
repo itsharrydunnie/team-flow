@@ -11,6 +11,7 @@ import { MiddlewareModule } from './middleware/middleware.module';
 import { UsersModule } from './users/users.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { ProjectsModule } from './projects/projects.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ProjectsModule } from './projects/projects.module';
     UsersModule,
     OrganizationsModule,
     ProjectsModule,
+    TasksModule,
   ],
   providers: [AppService],
 })

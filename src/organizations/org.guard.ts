@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
-export class isOrgMemberGuard implements CanActivate {
+export class OrganizationMemberGuard implements CanActivate {
   constructor(private prisma: PrismaService) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -26,8 +26,6 @@ export class isOrgMemberGuard implements CanActivate {
     }
     // check for membership
     const membership = await this.verifyMembership(orgId, user);
-
-    console.log('membership exist, can proceed', membership);
 
     if (!membership) {
       throw new ForbiddenException('Not part of organization');

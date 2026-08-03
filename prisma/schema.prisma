@@ -8,13 +8,18 @@ datasource db {
   provider = "postgresql"
 }
 
-//
+// ENUMS
 enum Role {
   OWNER 
   ADMIN
   MEMBER
 }
 
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
 
 model User {
   id           String   @id @default(uuid())
@@ -24,8 +29,11 @@ model User {
   lastName     String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  organizations Membership[]
 
+// Relations
+  organizations Membership[]
+ownedProjects Project[]
+assignedTasks Task[]
   @@map("users")
 }
 
@@ -33,9 +41,13 @@ model Organization {
   id String @id @default(uuid())
   name String 
   slug String @unique
-  memberships Membership[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  //Relation
+  memberships Membership[]
+  projects Project[]
+  tasks Task[]
 }
 
 model Membership{
@@ -50,3 +62,40 @@ model Membership{
   @@id([userId, organizationId])
 }
 
+model Project{
+  id String @id @default(uuid())
+  name String
+  description String?
+  organizationId String
+  ownerId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  owner User @relation(fields: [ownerId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  tasks Task[]
+
+  @@index([organizationId])
+}
+
+model Task {
+  id String @id @default(uuid())
+  title String
+  status TaskStatus @default(TODO)
+  projectId String
+  assigneeId String?
+  organizationId String
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relation
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee User? @relation(fields: [assigneeId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+@@index([organizationId])
+@@index([projectId])
+@@index([assigneeId])
+}

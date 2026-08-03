@@ -3,7 +3,7 @@ import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import slugify from 'slugify';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from 'src/users/user.dto';
+import type { User } from 'generated/prisma/client';
 import { Role } from './org.enum';
 
 @Injectable()

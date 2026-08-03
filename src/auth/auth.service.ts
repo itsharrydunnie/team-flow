@@ -15,6 +15,7 @@ import {
 } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
+import { User } from 'generated/prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -110,7 +111,7 @@ export class AuthService {
     throw new BadRequestException('Incorrect email or password');
   }
 
-  async loginUser(user: any) {
+  async loginUser(user: User) {
     const { id, email } = user;
     const accessToken = await this.signAccessToken({ userId: id, email });
     const refreshToken = await this.signRefreshToken({ userId: id });
