@@ -9,7 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import { AuthDto } from './auth.dto';
 import { CheckAuth, JwtAuthGuard, LocalAuthGuard } from './auth.gaurd';
-import { ValidateRegisterDTO } from 'src/pipe/validation.pipe';
+import { ValidateDTO } from 'src/pipe/validation.pipe';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from './auth.decorator';
 import type { User } from 'src/users/user.dto';
@@ -20,7 +20,7 @@ export class AuthController {
 
   @Post('register')
   // validate dto using pipes
-  async register(@Body(new ValidateRegisterDTO()) dto: AuthDto) {
+  async register(@Body(new ValidateDTO()) dto: AuthDto) {
     return this.authService.registerUser(dto);
   }
 

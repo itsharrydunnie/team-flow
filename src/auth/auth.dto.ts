@@ -1,5 +1,6 @@
 import {
   IsEmail,
+  IsNotEmpty,
   IsString,
   IsStrongPassword,
   MinLength,
@@ -8,9 +9,11 @@ import {
 
 export class AuthDto {
   @IsEmail()
+  @IsNotEmpty()
   email!: string;
 
   @IsString()
+  @IsNotEmpty()
   @MinLength(8, {
     message: 'Password must be atleast 8 character',
   })

@@ -60,7 +60,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (info instanceof JsonWebTokenError) {
       throw new UnauthorizedException('Invalid token');
     }
-    console.log(user, 'jhg');
+    if (err || !user) {
+      throw new UnauthorizedException('Authentication Required');
+    }
+    const request = context.switchToHttp().getRequest();
+
     return user;
   }
 }

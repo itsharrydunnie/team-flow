@@ -8,7 +8,7 @@ import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()
-export class ValidateRegisterDTO implements PipeTransform {
+export class ValidateDTO implements PipeTransform {
   async transform(value: any, { metatype }: ArgumentMetadata) {
     const object = plainToInstance(metatype!, value);
     const errors = await validate(object);
@@ -28,3 +28,10 @@ export class ValidateRegisterDTO implements PipeTransform {
     return extractedErrors;
   }
 }
+
+// @Injectable()
+// export class ValidateCreateOrgDto implements PipeTransform{
+//   async transform(value: any, metadata: ArgumentMetadata) {
+
+//   }
+// }
