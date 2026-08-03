@@ -1,98 +1,396 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# TeamFlow
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A production-oriented, multi-tenant team collaboration and workflow backend built with **NestJS**, **TypeScript**, **PostgreSQL**, and **Prisma**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+TeamFlow is not another CRUD or Todo application. It is a long-term backend engineering project designed to explore the architecture, patterns, and operational concerns behind modern SaaS collaboration platforms like Linear, Jira, Asana, and Notion.
 
-## Description
+The goal is to continuously evolve TeamFlow into a production-ready backend while learning real-world backend engineering concepts along the way.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## Vision
 
-```bash
-$ pnpm install
+Modern teams often rely on multiple disconnected tools:
+
+- Trello for task management
+- Slack for communication
+- Email for notifications
+- Google Docs for collaboration
+- Spreadsheets for tracking
+
+TeamFlow aims to become a centralized backend platform that powers collaborative workspaces where teams can manage projects, tasks, files, notifications, and real-time collaboration from a single system.
+
+---
+
+## Project Goals
+
+This project is intentionally designed to expose real backend engineering problems instead of artificial tutorial examples.
+
+It progressively introduces concepts such as:
+
+- Multi-tenancy
+- Authentication & Authorization
+- Database Design
+- Background Processing
+- Event-Driven Architecture
+- WebSockets
+- Object Storage
+- Docker
+- CI/CD
+- Monitoring
+- Testing
+- Caching
+- Deployment
+
+Every technology is introduced because the product naturally requires it—not simply to check a box.
+
+---
+
+# Current Progress
+
+## ✅ Phase 0 — Foundation
+
+- Environment validation
+- Centralized configuration
+- Prisma ORM
+- PostgreSQL
+- Dockerized development
+- Health Check endpoint
+
+---
+
+## ✅ Phase 1 — Identity
+
+- User Registration
+- User Login
+- JWT Authentication
+- Refresh Tokens
+- Password Hashing (bcrypt)
+- Protected Routes
+- Current User decorator
+
+---
+
+## ✅ Phase 2 — Multi-Tenancy
+
+- Organizations (Workspaces)
+- Membership Model
+- Role-based Memberships
+- Organization Creation
+- Tenant Isolation
+- Organization Guard
+- Current Organization decorator
+
+---
+
+## 🚧 Phase 3 — Core Domain (In Progress)
+
+- Projects
+- Tasks
+- Status Workflows
+- Pagination
+- Filtering
+
+---
+
+# Planned Architecture
+
+## Authentication
+
+- JWT Authentication
+- Refresh Tokens
+- Password Reset
+- Email Verification
+- Session / Device Tracking
+
+---
+
+## Organizations
+
+- Workspace Creation
+- Organization Membership
+- Tenant Isolation
+- Invite Users
+
+---
+
+## Role-Based Access Control (RBAC)
+
+Roles include:
+
+- Owner
+- Admin
+- Manager
+- Member
+
+Permissions will control access to:
+
+- Projects
+- Tasks
+- Members
+- Administrative Actions
+
+---
+
+## Projects & Tasks
+
+Projects contain tasks that move through defined workflows.
+
+Planned features include:
+
+- Task Assignment
+- Comments
+- Labels
+- Priorities
+- Due Dates
+- Status Management
+- Pagination
+- Filtering
+
+---
+
+## Activity Feed
+
+Every important action becomes an immutable activity event.
+
+Examples:
+
+- Task Assigned
+- Project Updated
+- Comment Added
+- Member Invited
+
+---
+
+## Notifications
+
+Notification channels:
+
+- In-App
+- Email
+- WebSocket
+
+Implemented using asynchronous background workers.
+
+---
+
+## Real-Time Collaboration
+
+- Live Notifications
+- Live Task Updates
+- Presence System
+
+Powered by WebSockets.
+
+---
+
+## File Management
+
+- Task Attachments
+- Comment Attachments
+- Object Storage
+- Signed URLs
+- Storage Abstraction
+
+---
+
+## Background Jobs
+
+Background workers will process:
+
+- Emails
+- Scheduled Reminders
+- Notification Delivery
+- Cleanup Jobs
+
+Implemented using BullMQ and Redis.
+
+---
+
+## Search
+
+Support for:
+
+- Pagination
+- Sorting
+- Filtering
+- Full-Text Search
+
+---
+
+# Technology Stack
+
+## Backend
+
+- NestJS
+- TypeScript
+- PostgreSQL
+- Prisma ORM
+- Redis
+- BullMQ
+
+## Infrastructure
+
+- Docker
+- GitHub Actions
+- Nginx
+- Fly.io / Render / VPS
+
+## Testing
+
+- Jest
+- Supertest
+- k6
+
+## Documentation
+
+- Swagger / OpenAPI
+
+---
+
+# Engineering Principles
+
+TeamFlow is built around the following principles:
+
+- Feature-based architecture
+- Multi-tenant by design
+- Secure authentication
+- Clean module boundaries
+- Request-scoped authorization
+- Production-oriented development
+- Incremental delivery
+- Deployment-first mindset
+
+The objective is to continuously take concrete steps that move the system closer to production rather than becoming trapped in premature optimization or unnecessary complexity.
+
+---
+
+# Project Structure
+
+```text
+src/
+├── auth/
+├── configuration/
+├── health/
+├── middleware/
+├── organizations/
+├── pipe/
+├── prisma/
+├── projects/
+├── users/
+└── app.module.ts
 ```
 
-## Compile and run the project
+As TeamFlow grows, additional modules such as Tasks, Notifications, Activity, Files, Search, and Realtime will be introduced.
+
+---
+
+# Getting Started
+
+## Clone
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+git clone https://github.com/<your-github-username>/team-flow.git
+cd team-flow
 ```
 
-## Run tests
+## Install Dependencies
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+pnpm install
 ```
 
-## Deployment
+## Configure Environment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Create a `.env` file.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+```env
+NODE_ENV=development
+PORT=3000
+
+DATABASE_URL=postgresql://postgres:password@localhost:5432/teamflow-db
+
+JWT_SECRET=your-secret
+
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+```
+
+## Start PostgreSQL
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+docker compose up -d
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Run Migrations
 
-## Resources
+```bash
+npx prisma migrate dev
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+## Generate Prisma Client
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+npx prisma generate
+```
 
-## Support
+## Run the Application
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+pnpm start:dev
+```
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# Roadmap
+
+- ✅ Foundation
+- ✅ Authentication
+- ✅ Multi-Tenancy
+- 🚧 Projects & Tasks
+- ⏳ RBAC
+- ⏳ Activity Feed
+- ⏳ Notifications
+- ⏳ File Uploads
+- ⏳ Real-Time Collaboration
+- ⏳ Background Jobs
+- ⏳ Search
+- ⏳ Caching
+- ⏳ Monitoring
+- ⏳ CI/CD
+- ⏳ Production Deployment
+
+---
+
+# Why TeamFlow?
+
+TeamFlow exists to explore production backend engineering—not just API development.
+
+As the project evolves, it will cover topics including:
+
+- REST API Design
+- Authentication & Security
+- Multi-Tenancy
+- RBAC
+- PostgreSQL Schema Design
+- Transactions
+- Query Optimization
+- Redis
+- BullMQ
+- Event-Driven Architecture
+- WebSockets
+- Object Storage
+- Docker
+- CI/CD
+- Monitoring & Logging
+- Testing
+- Rate Limiting
+- Deployment
+
+Rather than building many disconnected demo projects, TeamFlow is intended to grow into a single, realistic backend platform that demonstrates progressively more advanced engineering concepts over time.
+
+---
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+MIT
