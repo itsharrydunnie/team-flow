@@ -29,7 +29,7 @@ export class ProjectsService {
 
   async getAllProjects(org: Organization, paginationQuery: PaginationQueryDto) {
     const { id: currentOrgId } = org;
-    const { page, limit } = paginationQuery;
+    const { page = 1, limit = 10 } = paginationQuery;
 
     // calculate how many items to skip
     const skip = (page - 1) * limit;
@@ -127,7 +127,7 @@ export class ProjectsService {
     org: Organization,
     paginationQuery: PaginationQueryDto,
   ) {
-    const { page, limit } = paginationQuery;
+    const { page = 1, limit = 10 } = paginationQuery;
     const skip = (page - 1) * limit;
 
     const task = await this.prisma.task.findMany({

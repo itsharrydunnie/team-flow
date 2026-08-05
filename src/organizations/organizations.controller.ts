@@ -29,16 +29,21 @@ export class OrganizationsController {
     return this.organizationsService.create(dto, user);
   }
 
+  // Organization endpoints are user based cuz they're whats used to build the user workspace must be userscoped
+
+  // this particular endpoint is used to build all org in a workspace would requie current user guard return the membership table of the user
   @Get()
   findAll() {
     return this.organizationsService.findAll();
   }
 
+  // would require current org guard,
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.organizationsService.findOne(+id);
   }
 
+  // would require current org guard, and permission org.update
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -47,6 +52,7 @@ export class OrganizationsController {
     return this.organizationsService.update(+id, updateOrganizationDto);
   }
 
+  // would require current org guard, permission org.delete
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.organizationsService.remove(+id);

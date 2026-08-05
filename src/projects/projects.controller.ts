@@ -20,15 +20,17 @@ import { ProjectsService } from './projects.service';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { CreateTaskDto } from 'src/tasks/dto/create-task.dto';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { Permissions } from 'src/auth/authorization/permissions.decorator';
+import { Permission } from 'src/auth/authorization/permissions.enum';
+import { PermissionGuard } from 'src/auth/authorization/permissions.guard';
 
 @Controller('projects')
-// @UseGuards(JwtAuthGuard)
-// @UseGuards(OrgGuard) // this way of using guard gave me an error, the request object didn't match
-@UseGuards(JwtAuthGuard, OrganizationMemberGuard)
+@UseGuards(JwtAuthGuard, OrganizationMemberGuard, PermissionGuard)
 export class ProjectsController {
   constructor(private readonly projectService: ProjectsService) {}
 
   @Post()
+  @Permissions([Permission.PROJECT_CREATE])
   newProject(
     @CurrentUser() user: User,
     @CurrentOrg() org: Organization,
@@ -51,9 +53,9 @@ export class ProjectsController {
   }
 
   @Patch(':id')
+  @Permissions([Permission.PROJECT_UPDATE])
   updateProject(
     @CurrentOrg() org: Organization,
-    @CurrentUser() user: User,
     @Param('id') id: string,
     @Body(new ValidateDTO()) dto: UpdateProjectDto,
   ) {
@@ -61,16 +63,14 @@ export class ProjectsController {
   }
 
   @Delete(':id')
-  deleteProject(
-    @CurrentOrg() org: Organization,
-    @CurrentUser() user: User,
-    @Param('id') id: string,
-  ) {
+  @Permissions([Permission.PROJECT_DELETE])
+  deleteProject(@CurrentOrg() org: Organization, @Param('id') id: string) {
     return this.projectService.deleteProjectById(org, id);
   }
 
   // Tasks Related path
   @Post(':id/tasks')
+  @Permissions([Permission.TASK_CREATE])
   newTask(
     @CurrentOrg() org: Organization,
     @Param('id') id: string,

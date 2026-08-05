@@ -1,5 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Organization } from 'generated/prisma/client';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Organization, User } from 'generated/prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpdateTaskStatusDto } from './dto/update-taskStatus';
@@ -28,6 +32,7 @@ export class TasksService {
   }
 
   async updateTask(org: Organization, taskId: string, dto: UpdateTaskDto) {
+    // Kind of guard to know if the task actually exist
     await this.getTaskById(org, taskId);
 
     return this.prisma.task.update({
@@ -42,9 +47,18 @@ export class TasksService {
     org: Organization,
     taskId: string,
     dto: UpdateTaskStatusDto,
+    user: User,
   ) {
     const { status } = dto;
-    await this.getTaskById(org, taskId);
+
+    // Guard to check if user exist
+    const task = await this.getTaskById(org, taskId);
+
+    // check if current user was actually assigned the task
+
+    if (!(user.id === task.assigneeId)) {
+      throw new ForbiddenException('Task not assigned to user');
+    }
 
     return this.prisma.task.update({
       where: {

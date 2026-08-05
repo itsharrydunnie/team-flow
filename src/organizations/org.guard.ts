@@ -4,9 +4,7 @@ import {
   ExecutionContext,
   ForbiddenException,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -31,8 +29,10 @@ export class OrganizationMemberGuard implements CanActivate {
       throw new ForbiddenException('Not part of organization');
     }
 
-    // add org to request object
+    // add org and membership to request object
     request.organization = org;
+    request.membership = membership;
+    console.log('membership from orgguard', membership);
 
     return true;
   }
