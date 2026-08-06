@@ -32,7 +32,6 @@ export class OrganizationMemberGuard implements CanActivate {
     // add org and membership to request object
     request.organization = org;
     request.membership = membership;
-    console.log('membership from orgguard', membership);
 
     return true;
   }

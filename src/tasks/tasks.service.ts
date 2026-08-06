@@ -35,6 +35,8 @@ export class TasksService {
     // Kind of guard to know if the task actually exist
     await this.getTaskById(org, taskId);
 
+    // to check if assigneeid is a valid user
+
     return this.prisma.task.update({
       where: {
         id: taskId,

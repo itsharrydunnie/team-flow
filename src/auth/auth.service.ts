@@ -108,7 +108,7 @@ export class AuthService {
       // remove sensitive data like password
       return user;
     }
-    throw new BadRequestException('Incorrect email or password');
+    throw new BadRequestException('User not found');
   }
 
   async loginUser(user: User) {

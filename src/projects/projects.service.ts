@@ -29,6 +29,7 @@ export class ProjectsService {
 
   async getAllProjects(org: Organization, paginationQuery: PaginationQueryDto) {
     const { id: currentOrgId } = org;
+
     const { page = 1, limit = 10 } = paginationQuery;
 
     // calculate how many items to skip
