@@ -21,4 +21,12 @@ export class AuthDto {
   password!: string;
 }
 
-[];
+export class LoginDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password!: string;
+}

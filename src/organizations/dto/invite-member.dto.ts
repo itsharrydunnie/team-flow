@@ -9,12 +9,12 @@ export class InviteMemberDto {
   @IsString()
   @IsNotEmpty()
   @IsEnum(Role)
-  role!: string;
+  role!: Role;
 }
 
 export class UpdateRoleDto {
   @IsString()
   @IsNotEmpty()
   @IsEnum(Role)
-  role!: string;
+  role!: Role;
 }

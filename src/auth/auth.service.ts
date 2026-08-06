@@ -15,7 +15,7 @@ import {
 } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
-import { User } from 'generated/prisma/client';
+import { Prisma, User } from 'generated/prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -77,25 +77,35 @@ export class AuthService {
     dto: AuthDto,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const hashedPassword = await this.hashPasword(dto.password);
+
     //check for duplicate email
-    const checkUser = await this.userService.findUserByEmail(dto.email);
+    // const checkUser = await this.userService.findUserByEmail(dto.email);
 
-    if (checkUser) {
-      throw new BadRequestException('Duplicate email');
+    // if (checkUser) {
+    //   throw new BadRequestException('Duplicate email');
+    // }
+
+    try {
+      const user = await this.prisma.user.create({
+        data: { email: dto.email, passwordHash: hashedPassword },
+      });
+
+      const accessToken = await this.signAccessToken({
+        userId: user.id,
+        email: user.email,
+      });
+
+      const refreshToken = await this.signRefreshToken({ userId: user.id });
+
+      return { accessToken, refreshToken };
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new BadRequestException('Email already exist');
+        }
+      }
+      throw error;
     }
-
-    const user = await this.prisma.user.create({
-      data: { email: dto.email, passwordHash: hashedPassword },
-    });
-
-    const accessToken = await this.signAccessToken({
-      userId: user.id,
-      email: user.email,
-    });
-
-    const refreshToken = await this.signRefreshToken({ userId: user.id });
-
-    return { accessToken, refreshToken };
   }
 
   async validateUser(email: string, pass: string): Promise<any> {

@@ -53,7 +53,7 @@ export class TasksService {
   ) {
     const { status } = dto;
 
-    // Guard to check if user exist
+    // Guard to check if task exist
     const task = await this.getTaskById(org, taskId);
 
     // check if current user was actually assigned the task

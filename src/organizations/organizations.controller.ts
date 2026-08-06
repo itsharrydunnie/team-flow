@@ -21,6 +21,7 @@ import { Permission } from 'src/auth/authorization/permissions.enum';
 import { Permissions } from 'src/auth/authorization/permissions.decorator';
 import { OrganizationMemberGuard } from './org.guard';
 import { InviteMemberDto, UpdateRoleDto } from './dto/invite-member.dto';
+import { PermissionGuard } from 'src/auth/authorization/permissions.guard';
 
 @Controller('organizations')
 @UseGuards(JwtAuthGuard)
@@ -50,7 +51,7 @@ export class OrganizationsController {
   }
 
   @Patch(':id')
-  @UseGuards(OrganizationMemberGuard)
+  @UseGuards(OrganizationMemberGuard, PermissionGuard)
   @Permissions([Permission.ORGANIZATION_UPDATE])
   updateOrg(
     @Param('id') id: string,
@@ -60,7 +61,7 @@ export class OrganizationsController {
   }
 
   @Delete(':id')
-  @UseGuards(OrganizationMemberGuard)
+  @UseGuards(OrganizationMemberGuard, PermissionGuard)
   @Permissions([Permission.ORGANIZATION_DELETE])
   remove(@Param('id') id: string) {
     return this.organizationsService.remove(id);
@@ -68,7 +69,7 @@ export class OrganizationsController {
 
   // Membership Management
   @Post(':id/members')
-  @UseGuards(OrganizationMemberGuard)
+  @UseGuards(OrganizationMemberGuard, PermissionGuard)
   @Permissions([Permission.MEMBER_INVITE])
   inviteToOrg(
     @Param('id') id: string,
@@ -78,7 +79,7 @@ export class OrganizationsController {
   }
 
   @Patch(':id/members/:userId/role')
-  @UseGuards(OrganizationMemberGuard)
+  @UseGuards(OrganizationMemberGuard, PermissionGuard)
   @Permissions([Permission.MEMBER_UPDATE_ROLE])
   updateRole(
     @Param('id') id: string,

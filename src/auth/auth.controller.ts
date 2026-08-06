@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto } from './auth.dto';
+import { AuthDto, LoginDto } from './auth.dto';
 import { CheckAuth, JwtAuthGuard, LocalAuthGuard } from './auth.gaurd';
 import { ValidateDTO } from 'src/common/pipe/validation.pipe';
 import { AuthGuard } from '@nestjs/passport';
@@ -27,7 +27,10 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@CurrentUser() user: User) {
+  async login(
+    @Body(new ValidateDTO()) login: LoginDto,
+    @CurrentUser() user: User,
+  ) {
     return this.authService.loginUser(user);
   }
 

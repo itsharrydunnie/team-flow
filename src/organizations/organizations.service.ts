@@ -88,7 +88,11 @@ export class OrganizationsService {
       },
       include: {
         projects: true,
-        memberships: true,
+        memberships: {
+          include: {
+            user: true,
+          },
+        },
         tasks: true,
       },
     });
