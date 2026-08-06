@@ -14,7 +14,6 @@ import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { JwtAuthGuard } from 'src/auth/auth.gaurd';
 import { CurrentUser } from 'src/auth/auth.decorator';
-import { ValidateDTO } from 'src/common/pipe/validation.pipe';
 import type { User } from 'generated/prisma/client';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { Permission } from 'src/auth/authorization/permissions.enum';
@@ -29,17 +28,14 @@ export class OrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}
 
   @Post()
-  create(
-    @CurrentUser() user: User,
-    @Body(new ValidateDTO()) dto: CreateOrganizationDto,
-  ) {
+  create(@CurrentUser() user: User, @Body() dto: CreateOrganizationDto) {
     return this.organizationsService.create(dto, user);
   }
 
   @Get()
   getUserOrgs(
     @CurrentUser() user: User,
-    @Query(new ValidateDTO()) paginationDto: PaginationQueryDto,
+    @Query() paginationDto: PaginationQueryDto,
   ) {
     return this.organizationsService.getUserOrgs(user, paginationDto);
   }
@@ -54,7 +50,7 @@ export class OrganizationsController {
   @Permissions([Permission.ORGANIZATION_UPDATE])
   updateOrg(
     @Param('id') id: string,
-    @Body(new ValidateDTO()) updateOrganizationDto: UpdateOrganizationDto,
+    @Body() updateOrganizationDto: UpdateOrganizationDto,
   ) {
     return this.organizationsService.update(id, updateOrganizationDto);
   }
@@ -70,10 +66,7 @@ export class OrganizationsController {
   @Post(':id/members')
   @UseGuards(OrganizationMemberGuard, PermissionGuard)
   @Permissions([Permission.MEMBER_INVITE])
-  inviteToOrg(
-    @Param('id') id: string,
-    @Body(new ValidateDTO()) inviteDto: InviteMemberDto,
-  ) {
+  inviteToOrg(@Param('id') id: string, @Body() inviteDto: InviteMemberDto) {
     return this.organizationsService.addMember(id, inviteDto);
   }
 
@@ -83,7 +76,7 @@ export class OrganizationsController {
   updateRole(
     @Param('id') id: string,
     @Param('userId') userId: string,
-    @Body(new ValidateDTO()) roleDto: UpdateRoleDto,
+    @Body() roleDto: UpdateRoleDto,
   ) {
     return this.organizationsService.updateMemberRole(id, userId, roleDto);
   }

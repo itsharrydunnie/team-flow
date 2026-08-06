@@ -12,7 +12,6 @@ import { OrganizationMemberGuard } from 'src/organizations/org.guard';
 import { TasksService } from './tasks.service';
 import { CurrentOrg } from 'src/organizations/org.decorator';
 import type { Organization, User } from 'generated/prisma/client';
-import { ValidateDTO } from 'src/common/pipe/validation.pipe';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpdateTaskStatusDto } from './dto/update-task-status';
 import { Permission } from 'src/auth/authorization/permissions.enum';
@@ -35,7 +34,7 @@ export class TasksController {
   updateTask(
     @CurrentOrg() org: Organization,
     @Param('taskId') taskId: string,
-    @Body(new ValidateDTO()) dto: UpdateTaskDto,
+    @Body() dto: UpdateTaskDto,
   ) {
     return this.tasksService.updateTask(org, taskId, dto);
   }
@@ -52,7 +51,7 @@ export class TasksController {
     @CurrentOrg() org: Organization,
     @CurrentUser() user: User,
     @Param('taskId') taskId: string,
-    @Body(new ValidateDTO()) dto: UpdateTaskStatusDto,
+    @Body() dto: UpdateTaskStatusDto,
   ) {
     return this.tasksService.updateTaskStatus(org, taskId, dto, user);
   }

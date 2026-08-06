@@ -7,7 +7,6 @@ export class HealthController {
   @Get()
   async getHealth() {
     const health = await this.healthService.checkHealth();
-    console.log(health);
     return health;
   }
 }

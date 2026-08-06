@@ -2,305 +2,108 @@
 
 A production-oriented, multi-tenant team collaboration and workflow backend built with **NestJS**, **TypeScript**, **PostgreSQL**, and **Prisma**.
 
-TeamFlow is not another CRUD or Todo application. It is a long-term backend engineering project designed to explore the architecture, patterns, and operational concerns behind modern SaaS collaboration platforms like Linear, Jira, Asana, and Notion.
+TeamFlow is a long-term backend engineering project inspired by modern collaboration platforms such as **Linear**, **Jira**, **Asana**, and **Notion**. Rather than being another CRUD application, it focuses on solving real backend engineering problems found in production SaaS systems.
 
-The goal is to continuously evolve TeamFlow into a production-ready backend while learning real-world backend engineering concepts along the way.
+The objective is to build a scalable, secure, and maintainable backend while continuously introducing technologies only when the product naturally requires them.
 
 ---
 
 ## Vision
 
-Modern teams often rely on multiple disconnected tools:
+Modern teams often rely on multiple disconnected tools to get work done:
 
-- Trello for task management
+- Trello for project management
 - Slack for communication
 - Email for notifications
-- Google Docs for collaboration
+- Google Docs for documentation
 - Spreadsheets for tracking
 
-TeamFlow aims to become a centralized backend platform that powers collaborative workspaces where teams can manage projects, tasks, files, notifications, and real-time collaboration from a single system.
+TeamFlow aims to provide the backend that powers a centralized collaboration platform where organizations can manage projects, tasks, members, notifications, files, and real-time collaboration within isolated workspaces.
 
 ---
 
-## Project Goals
+## Features
 
-This project is intentionally designed to expose real backend engineering problems instead of artificial tutorial examples.
-
-It progressively introduces concepts such as:
-
-- Multi-tenancy
-- Authentication & Authorization
-- Database Design
-- Background Processing
-- Event-Driven Architecture
-- WebSockets
-- Object Storage
-- Docker
-- CI/CD
-- Monitoring
-- Testing
-- Caching
-- Deployment
-
-Every technology is introduced because the product naturally requires it—not simply to check a box.
-
----
-
-# Current Progress
-
-## ✅ Phase 0 — Foundation
-
-- Environment validation
-- Centralized configuration
-- Prisma ORM
-- PostgreSQL
-- Dockerized development
-- Health Check endpoint
-
----
-
-## ✅ Phase 1 — Identity
-
-- User Registration
-- User Login
+- Multi-tenant workspace architecture
 - JWT Authentication
-- Refresh Tokens
-- Password Hashing (bcrypt)
-- Protected Routes
-- Current User decorator
-
----
-
-## ✅ Phase 2 — Multi-Tenancy
-
-- Organizations (Workspaces)
-- Membership Model
-- Role-based Memberships
-- Organization Creation
-- Tenant Isolation
-- Organization Guard
-- Current Organization decorator
-
----
-
-## 🚧 Phase 3 — Core Domain (In Progress)
-
-- Projects
-- Tasks
-- Status Workflows
+- Refresh Token lifecycle
+- Role-Based Access Control (RBAC)
+- Organization membership management
+- Project management
+- Task management
+- Organization-scoped data isolation
 - Pagination
-- Filtering
+- Docker-based development environment
+
+As the platform evolves, additional capabilities such as activity feeds, notifications, background jobs, file uploads, real-time collaboration, search, caching, and observability will be introduced.
 
 ---
 
-# Planned Architecture
+## Technology Stack
 
-## Authentication
-
-- JWT Authentication
-- Refresh Tokens
-- Password Reset
-- Email Verification
-- Session / Device Tracking
-
----
-
-## Organizations
-
-- Workspace Creation
-- Organization Membership
-- Tenant Isolation
-- Invite Users
-
----
-
-## Role-Based Access Control (RBAC)
-
-Roles include:
-
-- Owner
-- Admin
-- Manager
-- Member
-
-Permissions will control access to:
-
-- Projects
-- Tasks
-- Members
-- Administrative Actions
-
----
-
-## Projects & Tasks
-
-Projects contain tasks that move through defined workflows.
-
-Planned features include:
-
-- Task Assignment
-- Comments
-- Labels
-- Priorities
-- Due Dates
-- Status Management
-- Pagination
-- Filtering
-
----
-
-## Activity Feed
-
-Every important action becomes an immutable activity event.
-
-Examples:
-
-- Task Assigned
-- Project Updated
-- Comment Added
-- Member Invited
-
----
-
-## Notifications
-
-Notification channels:
-
-- In-App
-- Email
-- WebSocket
-
-Implemented using asynchronous background workers.
-
----
-
-## Real-Time Collaboration
-
-- Live Notifications
-- Live Task Updates
-- Presence System
-
-Powered by WebSockets.
-
----
-
-## File Management
-
-- Task Attachments
-- Comment Attachments
-- Object Storage
-- Signed URLs
-- Storage Abstraction
-
----
-
-## Background Jobs
-
-Background workers will process:
-
-- Emails
-- Scheduled Reminders
-- Notification Delivery
-- Cleanup Jobs
-
-Implemented using BullMQ and Redis.
-
----
-
-## Search
-
-Support for:
-
-- Pagination
-- Sorting
-- Filtering
-- Full-Text Search
-
----
-
-# Technology Stack
-
-## Backend
+### Backend
 
 - NestJS
 - TypeScript
 - PostgreSQL
 - Prisma ORM
-- Redis
-- BullMQ
 
-## Infrastructure
+### Infrastructure
 
 - Docker
+- Docker Compose
+
+### Planned Technologies
+
+- Redis
+- BullMQ
+- WebSockets
+- Swagger / OpenAPI
 - GitHub Actions
 - Nginx
-- Fly.io / Render / VPS
+- Render / Fly.io / VPS
 
-## Testing
+### Testing
 
 - Jest
 - Supertest
 - k6
 
-## Documentation
-
-- Swagger / OpenAPI
-
 ---
 
-# Engineering Principles
+## Engineering Principles
 
-TeamFlow is built around the following principles:
+TeamFlow is built around a few guiding principles:
 
+- Production-first development
 - Feature-based architecture
-- Multi-tenant by design
-- Secure authentication
+- Multi-tenancy by design
+- Secure authentication and authorization
 - Clean module boundaries
-- Request-scoped authorization
-- Production-oriented development
 - Incremental delivery
-- Deployment-first mindset
+- Deployment-driven development
 
-The objective is to continuously take concrete steps that move the system closer to production rather than becoming trapped in premature optimization or unnecessary complexity.
-
----
-
-# Project Structure
-
-```text
-src/
-├── auth/
-├── configuration/
-├── health/
-├── middleware/
-├── organizations/
-├── pipe/
-├── prisma/
-├── projects/
-├── users/
-└── app.module.ts
-```
-
-As TeamFlow grows, additional modules such as Tasks, Notifications, Activity, Files, Search, and Realtime will be introduced.
+The goal is to continuously ship working software while improving the architecture over time, rather than delaying deployment in pursuit of unnecessary complexity.
 
 ---
 
-# Getting Started
+## Getting Started
 
-## Clone
+### Clone the repository
 
 ```bash
-git clone https://github.com/<your-github-username>/team-flow.git
+git clone https://github.com/<your-username>/team-flow.git
+
 cd team-flow
 ```
 
-## Install Dependencies
+### Install dependencies
 
 ```bash
 pnpm install
 ```
 
-## Configure Environment
+### Configure environment variables
 
 Create a `.env` file.
 
@@ -316,25 +119,25 @@ JWT_ACCESS_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
 ```
 
-## Start PostgreSQL
+### Start PostgreSQL
 
 ```bash
 docker compose up -d
 ```
 
-## Run Migrations
+### Run database migrations
 
 ```bash
 npx prisma migrate dev
 ```
 
-## Generate Prisma Client
+### Generate the Prisma Client
 
 ```bash
 npx prisma generate
 ```
 
-## Run the Application
+### Start the application
 
 ```bash
 pnpm start:dev
@@ -342,41 +145,21 @@ pnpm start:dev
 
 ---
 
-# Roadmap
+## Why TeamFlow?
 
-- ✅ Foundation
-- ✅ Authentication
-- ✅ Multi-Tenancy
-- 🚧 Projects & Tasks
-- ⏳ RBAC
-- ⏳ Activity Feed
-- ⏳ Notifications
-- ⏳ File Uploads
-- ⏳ Real-Time Collaboration
-- ⏳ Background Jobs
-- ⏳ Search
-- ⏳ Caching
-- ⏳ Monitoring
-- ⏳ CI/CD
-- ⏳ Production Deployment
+Instead of building many disconnected demo projects, TeamFlow grows as a single production-oriented backend that continuously introduces real engineering challenges.
 
----
-
-# Why TeamFlow?
-
-TeamFlow exists to explore production backend engineering—not just API development.
-
-As the project evolves, it will cover topics including:
+As development progresses, the project explores topics including:
 
 - REST API Design
-- Authentication & Security
+- Authentication & Authorization
 - Multi-Tenancy
 - RBAC
 - PostgreSQL Schema Design
 - Transactions
 - Query Optimization
 - Redis
-- BullMQ
+- Background Processing
 - Event-Driven Architecture
 - WebSockets
 - Object Storage
@@ -387,7 +170,7 @@ As the project evolves, it will cover topics including:
 - Rate Limiting
 - Deployment
 
-Rather than building many disconnected demo projects, TeamFlow is intended to grow into a single, realistic backend platform that demonstrates progressively more advanced engineering concepts over time.
+Each addition is driven by an actual product requirement, allowing the architecture to evolve naturally rather than through artificial examples.
 
 ---
 

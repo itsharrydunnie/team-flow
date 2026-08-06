@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { CurrentUser } from 'src/auth/auth.decorator';
 import { JwtAuthGuard } from 'src/auth/auth.gaurd';
-import { ValidateDTO } from 'src/common/pipe/validation.pipe';
 import { CurrentOrg } from 'src/organizations/org.decorator';
 import { OrganizationMemberGuard } from 'src/organizations/org.guard';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -34,7 +33,7 @@ export class ProjectsController {
   newProject(
     @CurrentUser() user: User,
     @CurrentOrg() org: Organization,
-    @Body(new ValidateDTO()) dto: CreateProjectDto,
+    @Body() dto: CreateProjectDto,
   ) {
     return this.projectService.createProject(user, org, dto);
   }
@@ -42,7 +41,7 @@ export class ProjectsController {
   @Get()
   getProjects(
     @CurrentOrg() org: Organization,
-    @Query(new ValidateDTO()) paginationQuery: PaginationQueryDto,
+    @Query() paginationQuery: PaginationQueryDto,
   ) {
     return this.projectService.getAllProjects(org, paginationQuery);
   }
@@ -57,7 +56,7 @@ export class ProjectsController {
   updateProject(
     @CurrentOrg() org: Organization,
     @Param('id') id: string,
-    @Body(new ValidateDTO()) dto: UpdateProjectDto,
+    @Body() dto: UpdateProjectDto,
   ) {
     return this.projectService.updateProjectById(org, id, dto);
   }
@@ -74,7 +73,7 @@ export class ProjectsController {
   newTask(
     @CurrentOrg() org: Organization,
     @Param('id') id: string,
-    @Body(new ValidateDTO()) dto: CreateTaskDto,
+    @Body() dto: CreateTaskDto,
   ) {
     return this.projectService.createNewTask(org, id, dto);
   }
@@ -83,7 +82,7 @@ export class ProjectsController {
   getTasksByProjectId(
     @CurrentOrg() org: Organization,
     @Param('id') id: string,
-    @Query(new ValidateDTO()) paginationQuery: PaginationQueryDto,
+    @Query() paginationQuery: PaginationQueryDto,
   ) {
     return this.projectService.getTasksByProject(id, org, paginationQuery);
   }
