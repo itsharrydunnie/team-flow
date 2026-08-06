@@ -6,7 +6,7 @@ import {
 import { Organization, User } from 'generated/prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { UpdateTaskStatusDto } from './dto/update-taskStatus';
+import { UpdateTaskStatusDto } from './dto/update-task-status';
 
 @Injectable()
 export class TasksService {
@@ -32,10 +32,7 @@ export class TasksService {
   }
 
   async updateTask(org: Organization, taskId: string, dto: UpdateTaskDto) {
-    // Kind of guard to know if the task actually exist
     await this.getTaskById(org, taskId);
-
-    // to check if assigneeid is a valid user
 
     return this.prisma.task.update({
       where: {
@@ -53,10 +50,7 @@ export class TasksService {
   ) {
     const { status } = dto;
 
-    // Guard to check if task exist
     const task = await this.getTaskById(org, taskId);
-
-    // check if current user was actually assigned the task
 
     if (!(user.id === task.assigneeId)) {
       throw new ForbiddenException('Task not assigned to user');

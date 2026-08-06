@@ -14,22 +14,19 @@ export class OrganizationMemberGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    // check for organization id from header
     const orgId = this.checkOrgId(request);
 
-    // check if organization exist
     const { status, org } = await this.orgExist(orgId);
     if (!status) {
       throw new BadRequestException('Organization id provided is not valid');
     }
-    // check for membership
+
     const membership = await this.verifyMembership(orgId, user);
 
     if (!membership) {
       throw new ForbiddenException('Not part of organization');
     }
 
-    // add org and membership to request object
     request.organization = org;
     request.membership = membership;
 
@@ -37,12 +34,10 @@ export class OrganizationMemberGuard implements CanActivate {
   }
 
   private checkOrgId(request: Request): string {
-    // check if field is present
     if (!Object.hasOwn(request.headers, 'x-org-id')) {
       throw new BadRequestException('x-org-id must be present in header');
     }
 
-    // id
     const orgId = request.headers['x-org-id'];
     if (!orgId) {
       throw new BadRequestException('Value for x-org-id must be present');

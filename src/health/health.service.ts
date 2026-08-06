@@ -8,10 +8,8 @@ export class HealthService {
   async checkHealth(): Promise<HealthStats> {
     try {
       const result = await this.prisma.$queryRaw`SELECT 1`;
-      console.log(result);
       return { status: 'ok', database: 'up' };
     } catch (error) {
-      console.log(error);
       return {
         status: 'ok',
         database: 'down',

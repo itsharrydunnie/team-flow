@@ -14,7 +14,7 @@ import { CurrentOrg } from 'src/organizations/org.decorator';
 import type { Organization, User } from 'generated/prisma/client';
 import { ValidateDTO } from 'src/common/pipe/validation.pipe';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { UpdateTaskStatusDto } from './dto/update-taskStatus';
+import { UpdateTaskStatusDto } from './dto/update-task-status';
 import { Permission } from 'src/auth/authorization/permissions.enum';
 import { PermissionGuard } from 'src/auth/authorization/permissions.guard';
 import { Permissions } from 'src/auth/authorization/permissions.decorator';
@@ -47,8 +47,6 @@ export class TasksController {
   }
 
   @Patch(':taskId/status')
-  // here i must check at the service if the user that want to update the status was the user assigned for the task
-  //
   @Permissions([Permission.TASK_UPDATE])
   updateTaskStatus(
     @CurrentOrg() org: Organization,

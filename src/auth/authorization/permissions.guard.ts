@@ -19,8 +19,6 @@ export class PermissionGuard implements CanActivate {
       return true;
     }
 
-    // Extract membership already added by previous guard
-
     const { membership }: { membership: Membership } = context
       .switchToHttp()
       .getRequest();

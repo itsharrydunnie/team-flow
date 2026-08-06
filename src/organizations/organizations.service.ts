@@ -20,10 +20,8 @@ export class OrganizationsService {
     const { name } = dto;
     const { id: userId } = user;
 
-    // Generate slug
     let slug = slugify(dto.name, { lower: true, strict: true });
 
-    // check if the slug already exists
     const count = await this.prisma.organization.count({
       where: { slug },
     });
@@ -31,9 +29,7 @@ export class OrganizationsService {
     if (count > 0) {
       slug = `${slug}-${Date.now().toString().slice(-4)}`;
     }
-    // begin transaction
     const newOrg = await this.prisma.$transaction(async (tx) => {
-      // create org
       const org = await tx.organization.create({
         data: {
           name,
@@ -41,7 +37,6 @@ export class OrganizationsService {
         },
       });
 
-      // create membership with ord id, user id, user role
       const membership = await tx.membership.create({
         data: {
           organizationId: org.id,
@@ -61,7 +56,6 @@ export class OrganizationsService {
   async getUserOrgs(user: User, paginationDto: PaginationQueryDto) {
     const { page = 1, limit = 10 } = paginationDto;
 
-    // calculate how many items to skip
     const skip = (page - 1) * limit;
 
     const membership = await this.prisma.membership.findMany({
@@ -106,9 +100,7 @@ export class OrganizationsService {
       where: {
         id,
       },
-      data: {
-        ...updateOrgDto,
-      },
+      data: updateOrgDto,
     });
     return updatedOrg;
   }
@@ -162,11 +154,7 @@ export class OrganizationsService {
   ) {
     const { role } = newRole;
 
-    // check for user
-
     await this.userService.findUserById(userId);
-
-    // check if user is part of organization
 
     const membership = await this.prisma.membership.update({
       where: {

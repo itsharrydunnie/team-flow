@@ -32,7 +32,6 @@ export class ProjectsService {
 
     const { page = 1, limit = 10 } = paginationQuery;
 
-    // calculate how many items to skip
     const skip = (page - 1) * limit;
 
     const allProjects = await this.prisma.project.findMany({
@@ -70,7 +69,6 @@ export class ProjectsService {
     id: string,
     dto: UpdateProjectDto,
   ) {
-    const { id: currentOrgId } = org;
     const { name, description } = dto;
 
     await this.getProjectById(org, id);
@@ -89,8 +87,6 @@ export class ProjectsService {
   }
 
   async deleteProjectById(org: Organization, id: string) {
-    const { id: currentOrgId } = org;
-
     await this.getProjectById(org, id);
 
     const deletedProject = await this.prisma.project.delete({

@@ -29,10 +29,3 @@ export class ValidateDTO implements PipeTransform {
     return extractedErrors;
   }
 }
-
-// @Injectable()
-// export class ValidateCreateOrgDto implements PipeTransform{
-//   async transform(value: any, metadata: ArgumentMetadata) {
-
-//   }
-// }

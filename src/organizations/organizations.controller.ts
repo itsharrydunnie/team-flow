@@ -36,7 +36,6 @@ export class OrganizationsController {
     return this.organizationsService.create(dto, user);
   }
 
-  // This endpoint gets all the organization the user belongs to
   @Get()
   getUserOrgs(
     @CurrentUser() user: User,

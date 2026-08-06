@@ -21,7 +21,7 @@ export class CheckAuth implements CanActivate {
     }
     try {
       const payload = await this.jwtService.verifyAsync(token);
-      request['user'] = payload; // this should attach user
+      request['user'] = payload;
     } catch {
       throw new UnauthorizedException('Invalid or Expired token');
     }
@@ -42,8 +42,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    // custom authentication logic
-
     return super.canActivate(context);
   }
 

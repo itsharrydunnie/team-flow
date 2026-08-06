@@ -4,7 +4,6 @@ import {
   IsString,
   IsStrongPassword,
   MinLength,
-  ValidationArguments,
 } from 'class-validator';
 
 export class AuthDto {

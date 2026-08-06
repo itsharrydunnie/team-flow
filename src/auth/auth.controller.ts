@@ -1,9 +1,8 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto, LoginDto } from './auth.dto';
-import { CheckAuth, JwtAuthGuard, LocalAuthGuard } from './auth.gaurd';
+import { JwtAuthGuard, LocalAuthGuard } from './auth.gaurd';
 import { ValidateDTO } from 'src/common/pipe/validation.pipe';
-import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from './auth.decorator';
 import type { User } from 'generated/prisma/client';
 
@@ -17,11 +16,9 @@ export class AuthController {
     return this.authService.registerUser(dto);
   }
 
-  // @UseGuards(CheckAuth)
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@CurrentUser() user: User) {
-    // should only return few data about user
     return user;
   }
 
@@ -37,7 +34,6 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getCurrentUser(@CurrentUser() user: User) {
-    // all user data
     return user;
   }
 

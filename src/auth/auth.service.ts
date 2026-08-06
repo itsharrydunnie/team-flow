@@ -1,6 +1,5 @@
 import {
   Injectable,
-  ForbiddenException,
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
@@ -13,7 +12,6 @@ import {
   NotBeforeError,
   TokenExpiredError,
 } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
 import { Prisma, User } from 'generated/prisma/client';
 
@@ -78,13 +76,6 @@ export class AuthService {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const hashedPassword = await this.hashPasword(dto.password);
 
-    //check for duplicate email
-    // const checkUser = await this.userService.findUserByEmail(dto.email);
-
-    // if (checkUser) {
-    //   throw new BadRequestException('Duplicate email');
-    // }
-
     try {
       const user = await this.prisma.user.create({
         data: { email: dto.email, passwordHash: hashedPassword },
@@ -115,7 +106,6 @@ export class AuthService {
       if (!comparedHash) {
         throw new BadRequestException('Incorrect password or email');
       }
-      // remove sensitive data like password
       return user;
     }
     throw new BadRequestException('User not found');
@@ -139,18 +129,6 @@ export class AuthService {
     }
 
     const user = await this.userService.findUserById(sub);
-    // compare against stored/hashed refresh token
-
-    // ↓
-    // if mismatch -> Unauthorized
-
-    // ↓
-    // generate new access token
-
-    // ↓
-    // (optional) rotate refresh token
-
-    // new access token
 
     if (!user) {
       throw new UnauthorizedException("could'nt find user"); // should change for better error msg
