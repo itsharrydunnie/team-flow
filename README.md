@@ -92,7 +92,7 @@ The goal is to continuously ship working software while improving the architectu
 ### Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/team-flow.git
+git clone https://github.com/itsharrydunnie/team-flow
 
 cd team-flow
 ```
