@@ -22,13 +22,37 @@ import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { Permissions } from 'src/auth/authorization/permissions.decorator';
 import { Permission } from 'src/auth/authorization/permissions.enum';
 import { PermissionGuard } from 'src/auth/authorization/permissions.guard';
+import {
+  ApiBearerAuth,
+  ApiHeader,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @Controller('projects')
+@ApiBearerAuth()
+@ApiHeader({
+  name: 'x-org-id',
+  description: 'Active organization ID',
+  required: true,
+})
 @UseGuards(JwtAuthGuard, OrganizationMemberGuard, PermissionGuard)
 export class ProjectsController {
   constructor(private readonly projectService: ProjectsService) {}
 
   @Post()
+  @ApiOperation({
+    summary: 'Create a project',
+    description: 'Creates a new project inside the current organization.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Project created successfully.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'User does not have permission.',
+  })
   @Permissions([Permission.PROJECT_CREATE])
   newProject(
     @CurrentUser() user: User,
@@ -39,6 +63,15 @@ export class ProjectsController {
   }
 
   @Get()
+  @ApiOperation({
+    summary: 'Get all projects',
+    description: 'Returns all projects belonging to the current organization',
+  })
+  @ApiResponse({ status: 200, description: 'Projects retrieved successfully.' })
+  @ApiResponse({
+    status: 403,
+    description: 'User is not a member of the organization.',
+  })
   getProjects(
     @CurrentOrg() org: Organization,
     @Query() paginationQuery: PaginationQueryDto,
@@ -47,11 +80,36 @@ export class ProjectsController {
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Get a project by ID',
+    description:
+      'Returns a single project belonging to the current organization.',
+  })
+  @ApiResponse({ status: 200, description: 'Project retrieved successfully.' })
+  @ApiResponse({ status: 401, description: 'User is not authenticated.' })
+  @ApiResponse({
+    status: 403,
+    description: 'User is not a member of the organization.',
+  })
+  @ApiResponse({ status: 404, description: 'Project not found.' })
   getProjectsById(@CurrentOrg() org: Organization, @Param('id') id: string) {
     return this.projectService.getProjectById(org, id);
   }
 
   @Patch(':id')
+  @ApiOperation({
+    summary: 'Update a project',
+    description:
+      'Updates an existing project belonging to the current organization.',
+  })
+  @ApiResponse({ status: 200, description: 'Project updated successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid project data.' })
+  @ApiResponse({ status: 401, description: 'User is not authenticated.' })
+  @ApiResponse({
+    status: 403,
+    description: 'User does not have permission to update the project.',
+  })
+  @ApiResponse({ status: 404, description: 'Project not found.' })
   @Permissions([Permission.PROJECT_UPDATE])
   updateProject(
     @CurrentOrg() org: Organization,
@@ -62,6 +120,18 @@ export class ProjectsController {
   }
 
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete a project',
+    description:
+      'Deletes an existing project belonging to the current organization.',
+  })
+  @ApiResponse({ status: 200, description: 'Project deleted successfully.' })
+  @ApiResponse({ status: 401, description: 'User is not authenticated.' })
+  @ApiResponse({
+    status: 403,
+    description: 'User does not have permission to delete the project.',
+  })
+  @ApiResponse({ status: 404, description: 'Project not found.' })
   @Permissions([Permission.PROJECT_DELETE])
   deleteProject(@CurrentOrg() org: Organization, @Param('id') id: string) {
     return this.projectService.deleteProjectById(org, id);
@@ -70,6 +140,18 @@ export class ProjectsController {
   // Tasks Related path
   @Post(':id/tasks')
   @Permissions([Permission.TASK_CREATE])
+  @ApiOperation({
+    summary: 'Create a task',
+    description: 'Creates a new task inside the specified project.',
+  })
+  @ApiResponse({ status: 201, description: 'Task created successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid task data.' })
+  @ApiResponse({ status: 401, description: 'User is not authenticated.' })
+  @ApiResponse({
+    status: 403,
+    description: 'User does not have permission to create a task.',
+  })
+  @ApiResponse({ status: 404, description: 'Project not found.' })
   newTask(
     @CurrentOrg() org: Organization,
     @Param('id') id: string,
@@ -79,6 +161,18 @@ export class ProjectsController {
   }
 
   @Get(':id/tasks')
+  @ApiOperation({
+    summary: 'Get tasks for a project',
+    description:
+      'Returns all tasks belonging to the specified project in the current organization.',
+  })
+  @ApiResponse({ status: 200, description: 'Tasks retrieved successfully.' })
+  @ApiResponse({ status: 401, description: 'User is not authenticated.' })
+  @ApiResponse({
+    status: 403,
+    description: 'User is not a member of the organization.',
+  })
+  @ApiResponse({ status: 404, description: 'Project not found.' })
   getTasksByProjectId(
     @CurrentOrg() org: Organization,
     @Param('id') id: string,

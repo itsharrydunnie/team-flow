@@ -103,15 +103,13 @@ export class ProjectsService {
     projectId: string,
     dto: CreateTaskDto,
   ) {
-    const { title, assigneeId } = dto;
     const { id: currentOrgId } = org;
 
     await this.getProjectById(org, projectId);
 
     const newTask = await this.prisma.task.create({
       data: {
-        title,
-        assigneeId,
+        ...dto,
         projectId,
         organizationId: currentOrgId,
       },
@@ -142,5 +140,6 @@ export class ProjectsService {
     if (!task) {
       throw new NotFoundException('Task not found');
     }
+    return task;
   }
 }
