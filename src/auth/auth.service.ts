@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AuthDto } from './auth.dto';
+import { RegisterDto } from './auth.dto';
 import bcrypt from 'bcryptjs';
 import {
   JsonWebTokenError,
@@ -72,7 +72,7 @@ export class AuthService {
   }
 
   async registerUser(
-    dto: AuthDto,
+    dto: RegisterDto,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const hashedPassword = await this.hashPasword(dto.password);
 

@@ -6,6 +6,17 @@ The format is based on Keep a Changelog.
 
 ---
 
+## [Unreleased]
+
+### Added
+
+#### API
+
+- Swagger API documentation
+- API landing page at `/`
+
+---
+
 ## [v0.1.0] - 2026-08-06
 
 ### Added
