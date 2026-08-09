@@ -92,7 +92,8 @@ The goal is to continuously ship working software while improving the architectu
 ### Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/team-flow.git
+
+git clone https://github.com/itsharrydunnie/team-flow.git
 
 cd team-flow
 ```
@@ -144,6 +145,19 @@ pnpm start:dev
 ```
 
 ---
+## Live API
+
+**Base URL**
+
+```text
+https://team-flow-uufz.onrender.com
+```
+
+**Health Check**
+
+```text
+GET /health
+```
 
 ## Why TeamFlow?
 
