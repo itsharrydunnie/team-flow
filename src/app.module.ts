@@ -1,5 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import appConfig from './configuration/app.config';
 import { validate } from './env.validation';
@@ -33,6 +32,5 @@ import { join } from 'path';
       rootPath: join(process.cwd(), 'public'),
     }),
   ],
-  providers: [AppService],
 })
 export class AppModule {}
