@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterDto } from './auth.dto';
@@ -92,9 +93,7 @@ export class AuthService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          throw new BadRequestException(
-            'A user with this email already exists.',
-          );
+          throw new ConflictException('A user with this email already exists.');
         }
       }
       throw error;

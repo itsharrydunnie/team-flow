@@ -12,6 +12,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { TasksModule } from './tasks/tasks.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+// import { AppController } from './app.controller';
 
 @Module({
   imports: [
