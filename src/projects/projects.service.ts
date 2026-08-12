@@ -70,12 +70,14 @@ export class ProjectsService {
     dto: UpdateProjectDto,
   ) {
     const { name, description } = dto;
+    const { id: currentOrgId } = org;
 
     await this.getProjectById(org, id);
 
     const updatedProject = await this.prisma.project.update({
       where: {
         id,
+        organizationId: currentOrgId,
       },
       data: {
         name,
@@ -88,10 +90,12 @@ export class ProjectsService {
 
   async deleteProjectById(org: Organization, id: string) {
     await this.getProjectById(org, id);
+    const { id: currentOrgId } = org;
 
     const deletedProject = await this.prisma.project.delete({
       where: {
         id,
+        organizationId: currentOrgId,
       },
     });
 

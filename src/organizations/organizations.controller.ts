@@ -68,6 +68,12 @@ export class OrganizationsController {
   }
 
   @Get(':id')
+  @UseGuards(OrganizationMemberGuard)
+  @ApiHeader({
+    name: 'x-org-id',
+    description: 'Active organization ID',
+    required: true,
+  })
   @ApiOperation({
     summary: 'Get an organization by ID',
     description: 'Returns an organization by its ID.',

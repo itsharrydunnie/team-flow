@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class UpdateTaskDto {
   @IsOptional()
@@ -20,6 +20,7 @@ export class UpdateTaskDto {
 
   @IsOptional()
   @IsString()
+  @IsUUID()
   @ApiPropertyOptional({
     example: '{uuid}',
     description: 'User thats assigned the task',

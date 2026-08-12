@@ -105,11 +105,10 @@ export class AuthService {
     if (user) {
       const comparedHash = await bcrypt.compare(pass, user.passwordHash);
       if (!comparedHash) {
-        throw new BadRequestException('Incorrect password or email');
+        throw new UnauthorizedException('Invalid email or password');
       }
       return user;
     }
-    throw new BadRequestException('User not found');
   }
 
   async loginUser(user: User) {

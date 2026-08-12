@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
-import { TaskStatus } from 'generated/prisma/enums';
+import { TaskStatus } from '../tasks.enum';
 
 export class UpdateTaskStatusDto {
   @IsEnum(TaskStatus)
