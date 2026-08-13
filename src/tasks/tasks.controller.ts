@@ -7,7 +7,7 @@ import {
   Patch,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/auth.gaurd';
+import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { OrganizationMemberGuard } from 'src/organizations/org.guard';
 import { TasksService } from './tasks.service';
 import { CurrentOrg } from 'src/organizations/org.decorator';

@@ -16,7 +16,7 @@ import { AuthJwtStrategy } from './jwt.strategy';
     PrismaModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('jwt_secret'),
       }),
       inject: [ConfigService],

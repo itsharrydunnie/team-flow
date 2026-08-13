@@ -4,13 +4,20 @@ import {
   ArgumentMetadata,
   BadRequestException,
 } from '@nestjs/common';
-import { validate } from 'class-validator';
+import { validate, ValidationError } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ValidateDTO implements PipeTransform {
-  async transform(value: any, metadata: ArgumentMetadata) {
-    const object = plainToInstance(metadata.metatype!, value);
+  async transform(
+    value: unknown,
+    metadata: ArgumentMetadata,
+  ): Promise<unknown> {
+    if (!metadata.metatype) {
+      return value;
+    }
+
+    const object: object = plainToInstance(metadata.metatype, value);
 
     const errors = await validate(object);
     if (errors.length > 0) {
@@ -21,10 +28,13 @@ export class ValidateDTO implements PipeTransform {
     return value;
   }
 
-  private errormsg(errors: Array<any>) {
+  private errormsg(errors: ValidationError[]) {
     const extractedErrors = errors.map((error) => {
       const { property, constraints } = error;
-      return { property: property, error: `${Object.values(constraints)[0]}` };
+      const message = constraints
+        ? Object.values(constraints)[0]
+        : 'Invalid value';
+      return { property, error: `${message}` };
     });
     return extractedErrors;
   }

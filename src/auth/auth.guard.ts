@@ -7,20 +7,23 @@ import {
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
+import { User } from 'generated/prisma/client';
 import { Observable } from 'rxjs';
+import { AccessTokenPayload } from './auth.interface';
 
 @Injectable()
 export class CheckAuth implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       throw new UnauthorizedException('Token missing');
     }
     try {
-      const payload = await this.jwtService.verifyAsync(token);
+      const payload =
+        await this.jwtService.verifyAsync<AccessTokenPayload>(token);
       request['user'] = payload;
     } catch {
       throw new UnauthorizedException('Invalid or Expired token');
@@ -45,13 +48,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = any>(
-    err: any,
-    user: any,
-    info: any,
-    context: ExecutionContext,
-    status?: any,
-  ): TUser {
+  handleRequest<TUser = User>(err: unknown, user: User, info: unknown): TUser {
     if (info instanceof TokenExpiredError) {
       throw new UnauthorizedException('Access token expired');
     }
@@ -61,8 +58,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (err || !user) {
       throw new UnauthorizedException('Authentication Required');
     }
-    const request = context.switchToHttp().getRequest();
 
-    return user;
+    return user as TUser;
   }
 }

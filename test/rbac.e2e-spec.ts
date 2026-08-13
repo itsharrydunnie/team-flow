@@ -1,11 +1,15 @@
 import { INestApplication } from '@nestjs/common';
-import { App } from 'supertest/types';
 import request from 'supertest';
 import { createE2EApp } from './helpers/create-e2e-app';
 import { Role } from 'src/organizations/org.enum';
+import {
+  AuthResponse,
+  OrganizationResponse,
+  ProjectResponse,
+} from './helpers/interface-e2e';
 
 describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJECT_CREATE', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication;
 
   beforeAll(async () => {
     app = await createE2EApp();
@@ -24,9 +28,9 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
       })
       .expect(201);
 
-    const ownerToken = owner.body.accessToken;
+    const { accessToken: ownerToken } = owner.body as AuthResponse;
 
-    const organization = await request(app.getHttpServer())
+    const organizationResponse = await request(app.getHttpServer())
       .post('/organizations')
       .set('Authorization', `Bearer ${ownerToken}`)
       .send({
@@ -34,12 +38,12 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
       })
       .expect(201);
 
-    const organizationId = organization.body.organization.id;
+    const organization = organizationResponse.body as OrganizationResponse;
 
     await request(app.getHttpServer())
       .post('/projects')
       .set('Authorization', `Bearer ${ownerToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         name: 'Owner Project',
       })
@@ -55,9 +59,9 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
       })
       .expect(201);
 
-    const ownerToken = owner.body.accessToken;
+    const { accessToken: ownerToken } = owner.body as AuthResponse;
 
-    const organization = await request(app.getHttpServer())
+    const organizationResponse = await request(app.getHttpServer())
       .post('/organizations')
       .set('Authorization', `Bearer ${ownerToken}`)
       .send({
@@ -65,7 +69,7 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
       })
       .expect(201);
 
-    const organizationId = organization.body.organization.id;
+    const organization = organizationResponse.body as OrganizationResponse;
 
     const admin = await request(app.getHttpServer())
       .post('/auth/register')
@@ -75,12 +79,12 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
       })
       .expect(201);
 
-    const adminToken = admin.body.accessToken;
+    const { accessToken: adminToken } = admin.body as AuthResponse;
 
     await request(app.getHttpServer())
-      .post(`/organizations/${organizationId}/members`)
+      .post(`/organizations/${organization.id}/members`)
       .set('Authorization', `Bearer ${ownerToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         email: 'admin@e2e.com',
         role: Role.ADMIN,
@@ -90,7 +94,7 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
     await request(app.getHttpServer())
       .post('/projects')
       .set('Authorization', `Bearer ${adminToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         name: 'Admin Project',
       })
@@ -106,9 +110,9 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
       })
       .expect(201);
 
-    const ownerToken = owner.body.accessToken;
+    const { accessToken: ownerToken } = owner.body as AuthResponse;
 
-    const organization = await request(app.getHttpServer())
+    const organizationResponse = await request(app.getHttpServer())
       .post('/organizations')
       .set('Authorization', `Bearer ${ownerToken}`)
       .send({
@@ -116,7 +120,7 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
       })
       .expect(201);
 
-    const organizationId = organization.body.organization.id;
+    const organization = organizationResponse.body as OrganizationResponse;
 
     const member = await request(app.getHttpServer())
       .post('/auth/register')
@@ -126,12 +130,12 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
       })
       .expect(201);
 
-    const memberToken = member.body.accessToken;
+    const { accessToken: memberToken } = member.body as AuthResponse;
 
     await request(app.getHttpServer())
-      .post(`/organizations/${organizationId}/members`)
+      .post(`/organizations/${organization.id}/members`)
       .set('Authorization', `Bearer ${ownerToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         email: 'member@e2e.com',
         role: Role.MEMBER,
@@ -141,7 +145,7 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
     await request(app.getHttpServer())
       .post('/projects')
       .set('Authorization', `Bearer ${memberToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         name: 'Should Fail',
       })
@@ -157,9 +161,9 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
       })
       .expect(201);
 
-    const ownerToken = owner.body.accessToken;
+    const { accessToken: ownerToken } = owner.body as AuthResponse;
 
-    const organization = await request(app.getHttpServer())
+    const organizationResponse = await request(app.getHttpServer())
       .post('/organizations')
       .set('Authorization', `Bearer ${ownerToken}`)
       .send({
@@ -167,18 +171,18 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
       })
       .expect(201);
 
-    const organizationId = organization.body.organization.id;
+    const organization = organizationResponse.body as OrganizationResponse;
 
-    const project = await request(app.getHttpServer())
+    const projectResponse = await request(app.getHttpServer())
       .post('/projects')
       .set('Authorization', `Bearer ${ownerToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         name: 'Member Project',
       })
       .expect(201);
 
-    const projectId = project.body.id;
+    const project = projectResponse.body as ProjectResponse;
 
     const member = await request(app.getHttpServer())
       .post('/auth/register')
@@ -188,12 +192,12 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
       })
       .expect(201);
 
-    const memberToken = member.body.accessToken;
+    const { accessToken: memberToken } = member.body as AuthResponse;
 
     await request(app.getHttpServer())
-      .post(`/organizations/${organizationId}/members`)
+      .post(`/organizations/${organization.id}/members`)
       .set('Authorization', `Bearer ${ownerToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         email: 'member-task@e2e.com',
         role: Role.MEMBER,
@@ -201,9 +205,9 @@ describe('Organization Permissions (e2e) Focusing on one Permission, e.g. PROJEC
       .expect(201);
 
     await request(app.getHttpServer())
-      .post(`/projects/${projectId}/tasks`)
+      .post(`/projects/${project.id}/tasks`)
       .set('Authorization', `Bearer ${memberToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         title: 'Member Task',
       })

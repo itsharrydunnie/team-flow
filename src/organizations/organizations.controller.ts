@@ -12,7 +12,7 @@ import {
 import { OrganizationsService } from './organizations.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
-import { JwtAuthGuard } from 'src/auth/auth.gaurd';
+import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { CurrentUser } from 'src/auth/auth.decorator';
 import type { User } from 'generated/prisma/client';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';

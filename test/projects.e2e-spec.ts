@@ -1,10 +1,14 @@
 import { INestApplication } from '@nestjs/common';
 import { createE2EApp } from './helpers/create-e2e-app';
-import { App } from 'supertest/types';
 import request from 'supertest';
+import {
+  AuthResponse,
+  OrganizationResponse,
+  ProjectResponse,
+} from './helpers/interface-e2e';
 
 describe('Projects (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication;
 
   beforeAll(async () => {
     app = await createE2EApp();
@@ -23,9 +27,9 @@ describe('Projects (e2e)', () => {
       })
       .expect(201);
 
-    const accessToken = user.body.accessToken;
+    const { accessToken } = user.body as AuthResponse;
 
-    const organization = await request(app.getHttpServer())
+    const orgResponse = await request(app.getHttpServer())
       .post('/organizations')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
@@ -33,12 +37,12 @@ describe('Projects (e2e)', () => {
       })
       .expect(201);
 
-    const organizationId = organization.body.organization.id;
+    const organization = orgResponse.body as OrganizationResponse;
 
     await request(app.getHttpServer())
       .post('/projects')
       .set('Authorization', `Bearer ${accessToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         name: 'Test Project',
       })
@@ -54,7 +58,7 @@ describe('Projects (e2e)', () => {
       })
       .expect(201);
 
-    const accessToken = user.body.accessToken;
+    const { accessToken } = user.body as AuthResponse;
 
     await request(app.getHttpServer())
       .post('/projects')
@@ -67,7 +71,7 @@ describe('Projects (e2e)', () => {
 
   it('Non-member cannot access project', async () => {
     // User 1 creates organization and project
-    const owner = await request(app.getHttpServer())
+    const ownerResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
         email: 'project-owner-nonmember@e2e.com',
@@ -75,9 +79,9 @@ describe('Projects (e2e)', () => {
       })
       .expect(201);
 
-    const ownerToken = owner.body.accessToken;
+    const { accessToken: ownerToken } = ownerResponse.body as AuthResponse;
 
-    const organization = await request(app.getHttpServer())
+    const organizationResponse = await request(app.getHttpServer())
       .post('/organizations')
       .set('Authorization', `Bearer ${ownerToken}`)
       .send({
@@ -85,18 +89,18 @@ describe('Projects (e2e)', () => {
       })
       .expect(201);
 
-    const organizationId = organization.body.organization.id;
+    const organization = organizationResponse.body as OrganizationResponse;
 
-    const project = await request(app.getHttpServer())
+    const projectResponse = await request(app.getHttpServer())
       .post('/projects')
       .set('Authorization', `Bearer ${ownerToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         name: 'Private Project',
       })
       .expect(201);
 
-    const projectId = project.body.id;
+    const project = projectResponse.body as ProjectResponse;
 
     // User 2 is authenticated but not a member
     const nonMember = await request(app.getHttpServer())
@@ -107,18 +111,18 @@ describe('Projects (e2e)', () => {
       })
       .expect(201);
 
-    const nonMemberToken = nonMember.body.accessToken;
+    const { accessToken: nonMemberToken } = nonMember.body as AuthResponse;
 
     await request(app.getHttpServer())
-      .get(`/projects/${projectId}`)
+      .get(`/projects/${project.id}`)
       .set('Authorization', `Bearer ${nonMemberToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .expect(403);
   });
 
   it('User from another organization cannot access project', async () => {
     // User 1 creates Organization A
-    const userOne = await request(app.getHttpServer())
+    const userOneResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
         email: 'org-a-user@e2e.com',
@@ -126,9 +130,9 @@ describe('Projects (e2e)', () => {
       })
       .expect(201);
 
-    const userOneToken = userOne.body.accessToken;
+    const { accessToken: userOneToken } = userOneResponse.body as AuthResponse;
 
-    const organizationA = await request(app.getHttpServer())
+    const organizationAResponse = await request(app.getHttpServer())
       .post('/organizations')
       .set('Authorization', `Bearer ${userOneToken}`)
       .send({
@@ -136,22 +140,22 @@ describe('Projects (e2e)', () => {
       })
       .expect(201);
 
-    const organizationAId = organizationA.body.organization.id;
+    const organizationA = organizationAResponse.body as OrganizationResponse;
 
     // Organization A has the project
-    const project = await request(app.getHttpServer())
+    const projectResponse = await request(app.getHttpServer())
       .post('/projects')
       .set('Authorization', `Bearer ${userOneToken}`)
-      .set('x-org-id', organizationAId)
+      .set('x-org-id', organizationA.id)
       .send({
         name: 'Organization A Project',
       })
       .expect(201);
 
-    const projectId = project.body.id;
+    const project = projectResponse.body as ProjectResponse;
 
     // User 2 creates Organization B
-    const userTwo = await request(app.getHttpServer())
+    const userTwoResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
         email: 'org-b-user@e2e.com',
@@ -159,9 +163,9 @@ describe('Projects (e2e)', () => {
       })
       .expect(201);
 
-    const userTwoToken = userTwo.body.accessToken;
+    const { accessToken: userTwoToken } = userTwoResponse.body as AuthResponse;
 
-    const organizationB = await request(app.getHttpServer())
+    const organizationBResponse = await request(app.getHttpServer())
       .post('/organizations')
       .set('Authorization', `Bearer ${userTwoToken}`)
       .send({
@@ -169,14 +173,14 @@ describe('Projects (e2e)', () => {
       })
       .expect(201);
 
-    const organizationBId = organizationB.body.organization.id;
+    const organizationB = organizationBResponse.body as OrganizationResponse;
 
     // User from Organization B attempts to access
     // a project belonging to Organization A.
     await request(app.getHttpServer())
-      .get(`/projects/${projectId}`)
+      .get(`/projects/${project.id}`)
       .set('Authorization', `Bearer ${userTwoToken}`)
-      .set('x-org-id', organizationBId)
+      .set('x-org-id', organizationB.id)
       .expect(404);
   });
 });

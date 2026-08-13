@@ -1,12 +1,18 @@
 import { INestApplication } from '@nestjs/common';
-import { App } from 'supertest/types';
 import request from 'supertest';
 import { createE2EApp } from './helpers/create-e2e-app';
 import { Role } from 'src/organizations/org.enum';
 import { TaskStatus } from 'src/tasks/tasks.enum';
+import {
+  AuthResponse,
+  MeResponse,
+  OrganizationResponse,
+  ProjectResponse,
+  TaskResponse,
+} from './helpers/interface-e2e';
 
 describe('Tasks (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication;
 
   beforeAll(async () => {
     app = await createE2EApp();
@@ -17,7 +23,7 @@ describe('Tasks (e2e)', () => {
   });
 
   it('Authenticated org member can create a task under a project', async () => {
-    const user = await request(app.getHttpServer())
+    const userResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
         email: 'task-owner@e2e.com',
@@ -25,9 +31,8 @@ describe('Tasks (e2e)', () => {
       })
       .expect(201);
 
-    const accessToken = user.body.accessToken;
-
-    const organization = await request(app.getHttpServer())
+    const { accessToken } = userResponse.body as AuthResponse;
+    const organizationResponse = await request(app.getHttpServer())
       .post('/organizations')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
@@ -35,23 +40,23 @@ describe('Tasks (e2e)', () => {
       })
       .expect(201);
 
-    const organizationId = organization.body.organization.id;
+    const organization = organizationResponse.body as OrganizationResponse;
 
-    const project = await request(app.getHttpServer())
+    const projectResponse = await request(app.getHttpServer())
       .post('/projects')
       .set('Authorization', `Bearer ${accessToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         name: 'Task Project',
       })
       .expect(201);
 
-    const projectId = project.body.id;
+    const project = projectResponse.body as ProjectResponse;
 
     await request(app.getHttpServer())
-      .post(`/projects/${projectId}/tasks`)
+      .post(`/projects/${project.id}/tasks`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         title: 'Test Task',
         description: 'Test task description',
@@ -68,9 +73,9 @@ describe('Tasks (e2e)', () => {
       })
       .expect(201);
 
-    const ownerToken = owner.body.accessToken;
+    const { accessToken: ownerToken } = owner.body as AuthResponse;
 
-    const organization = await request(app.getHttpServer())
+    const organizationResponse = await request(app.getHttpServer())
       .post('/organizations')
       .set('Authorization', `Bearer ${ownerToken}`)
       .send({
@@ -78,7 +83,7 @@ describe('Tasks (e2e)', () => {
       })
       .expect(201);
 
-    const organizationId = organization.body.organization.id;
+    const organization = organizationResponse.body as OrganizationResponse;
 
     const assignee = await request(app.getHttpServer())
       .post('/auth/register')
@@ -88,60 +93,60 @@ describe('Tasks (e2e)', () => {
       })
       .expect(201);
 
-    const assigneeToken = assignee.body.accessToken;
+    const { accessToken: assigneeToken } = assignee.body as AuthResponse;
 
-    const assigneeMe = await request(app.getHttpServer())
+    const assigneeMeResponse = await request(app.getHttpServer())
       .get('/auth/me')
       .set('Authorization', `Bearer ${assigneeToken}`)
       .expect(200);
 
-    const assigneeId = assigneeMe.body.id;
+    const user = assigneeMeResponse.body as MeResponse;
 
     await request(app.getHttpServer())
-      .post(`/organizations/${organizationId}/members`)
+      .post(`/organizations/${organization.id}/members`)
       .set('Authorization', `Bearer ${ownerToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         email: 'task-assignee@e2e.com',
         role: Role.MEMBER,
       })
       .expect(201);
 
-    const project = await request(app.getHttpServer())
+    const projectResponse = await request(app.getHttpServer())
       .post('/projects')
       .set('Authorization', `Bearer ${ownerToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         name: 'Assignment Project',
       })
       .expect(201);
 
-    const projectId = project.body.id;
+    const project = projectResponse.body as ProjectResponse;
 
-    const task = await request(app.getHttpServer())
-      .post(`/projects/${projectId}/tasks`)
+    const taskResponse = await request(app.getHttpServer())
+      .post(`/projects/${project.id}/tasks`)
       .set('Authorization', `Bearer ${ownerToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         title: 'Assignment Task',
       })
       .expect(201);
 
-    const taskId = task.body.id;
+    const task = taskResponse.body as TaskResponse;
 
     await request(app.getHttpServer())
-      .patch(`/tasks/${taskId}`)
+      .patch(`/tasks/${task.id}`)
       .set('Authorization', `Bearer ${ownerToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
-        assigneeId,
+        assigneeId: user.id,
       })
       .expect(200);
 
     await request(app.getHttpServer())
-      .patch(`/tasks/${taskId}/status`)
+      .patch(`/tasks/${task.id}/status`)
       .set('Authorization', `Bearer ${assigneeToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({
         status: TaskStatus.IN_PROGRESS,
       })
@@ -150,7 +155,7 @@ describe('Tasks (e2e)', () => {
 
   it('User cannot access a task from another organization', async () => {
     // Organization A
-    const userA = await request(app.getHttpServer())
+    const userAResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
         email: 'task-org-a@e2e.com',
@@ -158,9 +163,9 @@ describe('Tasks (e2e)', () => {
       })
       .expect(201);
 
-    const tokenA = userA.body.accessToken;
+    const { accessToken: tokenA } = userAResponse.body as AuthResponse;
 
-    const organizationA = await request(app.getHttpServer())
+    const organizationAResponse = await request(app.getHttpServer())
       .post('/organizations')
       .set('Authorization', `Bearer ${tokenA}`)
       .send({
@@ -168,32 +173,32 @@ describe('Tasks (e2e)', () => {
       })
       .expect(201);
 
-    const organizationAId = organizationA.body.organization.id;
+    const organizationA = organizationAResponse.body as OrganizationResponse;
 
-    const project = await request(app.getHttpServer())
+    const projectResponse = await request(app.getHttpServer())
       .post('/projects')
       .set('Authorization', `Bearer ${tokenA}`)
-      .set('x-org-id', organizationAId)
+      .set('x-org-id', organizationA.id)
       .send({
         name: 'Organization A Project',
       })
       .expect(201);
 
-    const projectId = project.body.id;
+    const project = projectResponse.body as ProjectResponse;
 
-    const task = await request(app.getHttpServer())
-      .post(`/projects/${projectId}/tasks`)
+    const taskResponse = await request(app.getHttpServer())
+      .post(`/projects/${project.id}/tasks`)
       .set('Authorization', `Bearer ${tokenA}`)
-      .set('x-org-id', organizationAId)
+      .set('x-org-id', organizationA.id)
       .send({
         title: 'Organization A Task',
       })
       .expect(201);
 
-    const taskId = task.body.id;
+    const task = taskResponse.body as TaskResponse;
 
     // Organization B
-    const userB = await request(app.getHttpServer())
+    const userBResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
         email: 'task-org-b@e2e.com',
@@ -201,9 +206,9 @@ describe('Tasks (e2e)', () => {
       })
       .expect(201);
 
-    const tokenB = userB.body.accessToken;
+    const { accessToken: tokenB } = userBResponse.body as AuthResponse;
 
-    const organizationB = await request(app.getHttpServer())
+    const organizationBResponse = await request(app.getHttpServer())
       .post('/organizations')
       .set('Authorization', `Bearer ${tokenB}`)
       .send({
@@ -211,13 +216,13 @@ describe('Tasks (e2e)', () => {
       })
       .expect(201);
 
-    const organizationBId = organizationB.body.organization.id;
+    const organizationB = organizationBResponse.body as OrganizationResponse;
 
     // User B tries to update a task belonging to Organization A.
     await request(app.getHttpServer())
-      .patch(`/tasks/${taskId}`)
+      .patch(`/tasks/${task.id}`)
       .set('Authorization', `Bearer ${tokenB}`)
-      .set('x-org-id', organizationBId)
+      .set('x-org-id', organizationB.id)
       .send({
         title: 'Organization A Task Title Update',
       })

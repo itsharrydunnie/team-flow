@@ -7,9 +7,9 @@ export class HealthService {
   constructor(private prisma: PrismaService) {}
   async checkHealth(): Promise<HealthStats> {
     try {
-      const result = await this.prisma.$queryRaw`SELECT 1`;
+      await this.prisma.$queryRaw`SELECT 1`;
       return { status: 'ok', database: 'up' };
-    } catch (error) {
+    } catch {
       return {
         status: 'ok',
         database: 'down',

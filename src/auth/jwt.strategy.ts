@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
+import { AccessTokenPayload } from './auth.interface';
 
 @Injectable()
 export class AuthJwtStrategy extends PassportStrategy(Strategy) {
@@ -21,7 +22,7 @@ export class AuthJwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: secret,
     });
   }
-  async validate(payload: any) {
+  async validate(payload: AccessTokenPayload) {
     const user = await this.userService.findUserByEmail(payload.email);
 
     return user;

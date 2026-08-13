@@ -1,8 +1,8 @@
-import { ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from 'src/app.module';
 
-export async function createE2EApp() {
+export async function createE2EApp(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModule, {
     logger: false,
   });

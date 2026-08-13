@@ -5,21 +5,21 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
+import { AuthenticatedRequest } from 'src/auth/auth.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { OrganizationRequest } from './organizations.interface';
+import { Organization, User } from 'generated/prisma/client';
 
 @Injectable()
 export class OrganizationMemberGuard implements CanActivate {
   constructor(private prisma: PrismaService) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<OrganizationRequest>();
     const user = request.user;
 
     const orgId = this.checkOrgId(request);
 
-    const { status, org } = await this.orgExist(orgId);
-    if (!status) {
-      throw new BadRequestException('Organization id provided is not valid');
-    }
+    const org = await this.orgExist(orgId);
 
     const membership = await this.verifyMembership(orgId, user);
 
@@ -33,19 +33,18 @@ export class OrganizationMemberGuard implements CanActivate {
     return true;
   }
 
-  private checkOrgId(request: Request): string {
-    if (!Object.hasOwn(request.headers, 'x-org-id')) {
-      throw new BadRequestException('x-org-id must be present in header');
-    }
+  private checkOrgId(request: AuthenticatedRequest): string {
+    const orgId: unknown = request.headers['x-org-id'];
 
-    const orgId = request.headers['x-org-id'];
-    if (!orgId) {
-      throw new BadRequestException('Value for x-org-id must be present');
+    if (typeof orgId !== 'string' || orgId.trim() === '') {
+      throw new BadRequestException(
+        'x-org-id must be present and must not be empty',
+      );
     }
     return orgId;
   }
 
-  private async verifyMembership(orgId: string, user) {
+  private async verifyMembership(orgId: string, user: User) {
     const membership = await this.prisma.membership.findUnique({
       where: {
         userId_organizationId: { organizationId: orgId, userId: user.id },
@@ -54,17 +53,15 @@ export class OrganizationMemberGuard implements CanActivate {
     return membership;
   }
 
-  private async orgExist(
-    orgId: string,
-  ): Promise<{ status: boolean; org: any }> {
+  private async orgExist(orgId: string): Promise<Organization> {
     const org = await this.prisma.organization.findUnique({
       where: {
         id: orgId,
       },
     });
     if (!org) {
-      return { status: false, org: org };
+      throw new BadRequestException('Organization id provided is not valid');
     }
-    return { status: true, org };
+    return org;
   }
 }

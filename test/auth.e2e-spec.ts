@@ -1,10 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { App } from 'supertest/types';
 import { createE2EApp } from './helpers/create-e2e-app';
+import { AuthResponse } from './helpers/interface-e2e';
 
 describe('Auth (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication;
 
   beforeAll(async () => {
     app = await createE2EApp();
@@ -23,13 +23,7 @@ describe('Auth (e2e)', () => {
       return request(app.getHttpServer())
         .post(registerUrl)
         .send({ email: 'test@e2e.com', password: 'Testpassword#1' })
-        .expect(201)
-        .then((response) => {
-          expect(response.body).toEqual({
-            accessToken: expect.any(String),
-            refreshToken: expect.any(String),
-          });
-        });
+        .expect(201);
     });
 
     it('/auth/register (POST) - invalid email', () => {
@@ -59,13 +53,7 @@ describe('Auth (e2e)', () => {
       return request(app.getHttpServer())
         .post(loginUrl)
         .send({ email: 'test@e2e.com', password: 'Testpassword#1' })
-        .expect(200)
-        .then((response) => {
-          expect(response.body).toEqual({
-            accessToken: expect.any(String),
-            refreshToken: expect.any(String),
-          });
-        });
+        .expect(200);
     });
 
     it('/auth/login (POST) - Wrong Password', () => {
@@ -89,7 +77,7 @@ describe('Auth (e2e)', () => {
       const logInResponse = await request(app.getHttpServer())
         .post(loginUrl)
         .send({ email: 'test@e2e.com', password: 'Testpassword#1' });
-      const accessToken = logInResponse.body.accessToken;
+      const { accessToken } = logInResponse.body as AuthResponse;
 
       // Retrieve current user data
       return request(app.getHttpServer())

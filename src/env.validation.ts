@@ -31,6 +31,14 @@ class EnvVariables {
   @IsNotEmpty()
   JWT_SECRET!: string;
 
+  @IsString()
+  @IsNotEmpty()
+  JWT_ACCESS_EXPIRES_IN!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  JWT_REFRESH_EXPIRES_IN!: string;
+
   @IsOptional()
   @IsString()
   CORS_ORIGIN?: string;

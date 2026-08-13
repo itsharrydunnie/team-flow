@@ -29,7 +29,7 @@ export class OrganizationsService {
     if (count > 0) {
       slug = `${slug}-${Date.now().toString().slice(-4)}`;
     }
-    const newOrg = await this.prisma.$transaction(async (tx) => {
+    const organization = await this.prisma.$transaction(async (tx) => {
       const org = await tx.organization.create({
         data: {
           name,
@@ -37,7 +37,7 @@ export class OrganizationsService {
         },
       });
 
-      const membership = await tx.membership.create({
+      await tx.membership.create({
         data: {
           organizationId: org.id,
           userId,
@@ -48,9 +48,7 @@ export class OrganizationsService {
       return org;
     });
 
-    return {
-      organization: newOrg,
-    };
+    return organization;
   }
 
   async getUserOrgs(user: User, paginationDto: PaginationQueryDto) {

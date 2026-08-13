@@ -10,7 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { CurrentUser } from 'src/auth/auth.decorator';
-import { JwtAuthGuard } from 'src/auth/auth.gaurd';
+import { JwtAuthGuard } from 'src/auth/auth.guard';
 import { CurrentOrg } from 'src/organizations/org.decorator';
 import { OrganizationMemberGuard } from 'src/organizations/org.guard';
 import { CreateProjectDto } from './dto/create-project.dto';

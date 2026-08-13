@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './auth.dto';
-import { JwtAuthGuard, LocalAuthGuard } from './auth.gaurd';
+import { JwtAuthGuard, LocalAuthGuard } from './auth.guard';
 import { CurrentUser } from './auth.decorator';
 import type { User } from 'generated/prisma/client';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';

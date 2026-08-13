@@ -3,7 +3,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { User } from 'generated/prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -21,7 +20,7 @@ export class UsersService {
     }
     return user;
   }
-  async findUserById(id) {
+  async findUserById(id: string) {
     const user = await this.prisma.user.findUnique({
       where: {
         id: id,

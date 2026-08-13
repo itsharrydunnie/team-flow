@@ -1,7 +1,6 @@
 import {
   Injectable,
   UnauthorizedException,
-  BadRequestException,
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -15,6 +14,9 @@ import {
 } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { Prisma, User } from 'generated/prisma/client';
+import { ConfigService } from '@nestjs/config';
+import { AccessTokenPayload, RefreshTokenPayload } from './auth.interface';
+import { TokenType } from './auth.enum';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +24,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private userService: UsersService,
+    private config: ConfigService,
   ) {}
 
   private async hashPasword(password: string): Promise<string> {
@@ -36,7 +39,7 @@ export class AuthService {
   }): Promise<string> {
     const payload = { sub: dto.userId, email: dto.email, type: 'access' };
     const token = await this.jwtService.signAsync(payload, {
-      expiresIn: '15m',
+      expiresIn: this.config.get('jwt_access_expires'),
     });
 
     return token;
@@ -45,15 +48,19 @@ export class AuthService {
   private async signRefreshToken(dto: { userId: string }): Promise<string> {
     const payload = { sub: dto.userId, type: 'refresh' };
     const token = await this.jwtService.signAsync(payload, {
-      expiresIn: '7d',
+      expiresIn: this.config.get('jwt_refresh_expires'),
     });
 
     return token;
   }
 
-  async validateToken(token: string): Promise<any> {
+  async validateToken(
+    token: string,
+  ): Promise<AccessTokenPayload | RefreshTokenPayload> {
     try {
-      const payload = await this.jwtService.verifyAsync(token);
+      const payload = await this.jwtService.verifyAsync<
+        AccessTokenPayload | RefreshTokenPayload
+      >(token);
       return payload;
     } catch (error) {
       if (error instanceof TokenExpiredError) {
@@ -100,15 +107,14 @@ export class AuthService {
     }
   }
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(email: string, pass: string): Promise<User> {
     const user = await this.userService.findUserByEmail(email);
-    if (user) {
-      const comparedHash = await bcrypt.compare(pass, user.passwordHash);
-      if (!comparedHash) {
-        throw new UnauthorizedException('Invalid email or password');
-      }
-      return user;
+
+    const comparedHash = await bcrypt.compare(pass, user.passwordHash);
+    if (!comparedHash) {
+      throw new UnauthorizedException('Invalid email or password');
     }
+    return user;
   }
 
   async loginUser(user: User) {
@@ -124,7 +130,7 @@ export class AuthService {
   async refresh(refreshToken: string) {
     const { sub, type } = await this.validateToken(refreshToken);
 
-    if (type !== 'refresh') {
+    if (type !== TokenType.REFRESH_TOKEN) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 

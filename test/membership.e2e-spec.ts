@@ -1,11 +1,11 @@
 import { INestApplication } from '@nestjs/common';
 import { createE2EApp } from './helpers/create-e2e-app';
-import { App } from 'supertest/types';
 import request from 'supertest';
 import { Role } from 'src/organizations/org.enum';
+import { AuthResponse, OrganizationResponse } from './helpers/interface-e2e';
 
 describe('Organization (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication;
 
   beforeAll(async () => {
     app = await createE2EApp();
@@ -21,7 +21,9 @@ describe('Organization (e2e)', () => {
       .post('/auth/register')
       .send({ email: 'firstuser@e2e.com', password: 'Testpassword#1' })
       .expect(201);
-    const firstUserToken = firstUserResponse.body.accessToken;
+
+    const { accessToken: firstUserToken } =
+      firstUserResponse.body as AuthResponse;
 
     // Owner creates organization
     const organizationResponse = await request(app.getHttpServer())
@@ -29,7 +31,7 @@ describe('Organization (e2e)', () => {
       .set('Authorization', `Bearer ${firstUserToken}`)
       .send({ name: 'Test Organization' })
       .expect(201);
-    const organizationId = organizationResponse.body.organization.id;
+    const organization = organizationResponse.body as OrganizationResponse;
 
     // Create existing user to invite
     await request(app.getHttpServer())
@@ -38,14 +40,12 @@ describe('Organization (e2e)', () => {
       .expect(201);
 
     // Owner invites existing user
-    const inviteResponse = await request(app.getHttpServer())
-      .post(`/organizations/${organizationId}/members`)
+    await request(app.getHttpServer())
+      .post(`/organizations/${organization.id}/members`)
       .set('Authorization', `Bearer ${firstUserToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({ email: 'seconduser@e2e.com', role: Role.MEMBER })
       .expect(201);
-
-    expect(inviteResponse.body).toBeDefined();
   });
 
   it('Admin can invite user', async () => {
@@ -54,7 +54,9 @@ describe('Organization (e2e)', () => {
       .post('/auth/register')
       .send({ email: 'firstuser-admin@e2e.com', password: 'Testpassword#1' })
       .expect(201);
-    const firstUserToken = firstUserResponse.body.accessToken;
+
+    const { accessToken: firstUserToken } =
+      firstUserResponse.body as AuthResponse;
 
     // Owner creates organization
     const organizationResponse = await request(app.getHttpServer())
@@ -63,21 +65,23 @@ describe('Organization (e2e)', () => {
       .send({ name: 'Admin Test Organization' })
       .expect(201);
 
-    const organizationId = organizationResponse.body.organization.id;
+    const organization = organizationResponse.body as OrganizationResponse;
 
     // Create admin user
     const secondUserResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({ email: 'seconduser-admin@e2e.com', password: 'Testpassword#1' })
       .expect(201);
-    const secondUserToken = secondUserResponse.body.accessToken;
+
+    const { accessToken: secondUserToken } =
+      secondUserResponse.body as AuthResponse;
 
     // Owner invites second user as ADMIN
 
     await request(app.getHttpServer())
-      .post(`/organizations/${organizationId}/members`)
+      .post(`/organizations/${organization.id}/members`)
       .set('Authorization', `Bearer ${firstUserToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({ email: 'seconduser-admin@e2e.com', role: Role.ADMIN })
       .expect(201);
 
@@ -89,9 +93,9 @@ describe('Organization (e2e)', () => {
 
     // Admin invites third user
     const inviteResponse = await request(app.getHttpServer())
-      .post(`/organizations/${organizationId}/members`)
+      .post(`/organizations/${organization.id}/members`)
       .set('Authorization', `Bearer ${secondUserToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({ email: 'thirduser-admin@e2e.com', role: Role.MEMBER })
       .expect(201);
 
@@ -105,7 +109,8 @@ describe('Organization (e2e)', () => {
       .send({ email: 'firstuser-member@e2e.com', password: 'Testpassword#1' })
       .expect(201);
 
-    const firstUserToken = firstUserResponse.body.accessToken;
+    const { accessToken: firstUserToken } =
+      firstUserResponse.body as AuthResponse;
 
     // Owner creates organization
     const organizationResponse = await request(app.getHttpServer())
@@ -114,7 +119,7 @@ describe('Organization (e2e)', () => {
       .send({ name: 'Member Test Organization' })
       .expect(201);
 
-    const organizationId = organizationResponse.body.organization.id;
+    const organization = organizationResponse.body as OrganizationResponse;
 
     // Create member
     const secondUserResponse = await request(app.getHttpServer())
@@ -122,13 +127,14 @@ describe('Organization (e2e)', () => {
       .send({ email: 'seconduser-member@e2e.com', password: 'Testpassword#1' })
       .expect(201);
 
-    const secondUserToken = secondUserResponse.body.accessToken;
+    const { accessToken: secondUserToken } =
+      secondUserResponse.body as AuthResponse;
 
     // Owner adds second user as MEMBER
     await request(app.getHttpServer())
-      .post(`/organizations/${organizationId}/members`)
+      .post(`/organizations/${organization.id}/members`)
       .set('Authorization', `Bearer ${firstUserToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({ email: 'seconduser-member@e2e.com', role: Role.MEMBER })
       .expect(201);
 
@@ -140,9 +146,9 @@ describe('Organization (e2e)', () => {
 
     // Member attempts to invite user
     await request(app.getHttpServer())
-      .post(`/organizations/${organizationId}/members`)
+      .post(`/organizations/${organization.id}/members`)
       .set('Authorization', `Bearer ${secondUserToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send({ email: 'thirduser-member@e2e.com', role: Role.MEMBER })
       .expect(403);
   });
@@ -157,7 +163,8 @@ describe('Organization (e2e)', () => {
       })
       .expect(201);
 
-    const firstUserToken = firstUserResponse.body.accessToken;
+    const { accessToken: firstUserToken } =
+      firstUserResponse.body as AuthResponse;
 
     // Owner creates organization
     const organizationResponse = await request(app.getHttpServer())
@@ -166,7 +173,7 @@ describe('Organization (e2e)', () => {
       .send({ name: 'Duplicate Test Organization' })
       .expect(201);
 
-    const organizationId = organizationResponse.body.organization.id;
+    const organization = organizationResponse.body as OrganizationResponse;
 
     // Create existing user
     await request(app.getHttpServer())
@@ -184,17 +191,17 @@ describe('Organization (e2e)', () => {
 
     // First invitation/membership succeeds
     await request(app.getHttpServer())
-      .post(`/organizations/${organizationId}/members`)
+      .post(`/organizations/${organization.id}/members`)
       .set('Authorization', `Bearer ${firstUserToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send(invitePayload)
       .expect(201);
 
     // Same user cannot be added again
     await request(app.getHttpServer())
-      .post(`/organizations/${organizationId}/members`)
+      .post(`/organizations/${organization.id}/members`)
       .set('Authorization', `Bearer ${firstUserToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .send(invitePayload)
       .expect(409);
   });

@@ -1,10 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import { createE2EApp } from './helpers/create-e2e-app';
-import { App } from 'supertest/types';
 import request from 'supertest';
+import { AuthResponse, OrganizationResponse } from './helpers/interface-e2e';
 
 describe('Organization (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication;
 
   beforeAll(async () => {
     app = await createE2EApp();
@@ -20,7 +20,9 @@ describe('Organization (e2e)', () => {
       .send({ email: 'test0@e2e.com', password: 'Testpassword#1' })
       .expect(201);
 
-    const accessToken = createAcctResponse.body.accessToken;
+    const body = createAcctResponse.body as AuthResponse;
+
+    const accessToken = body.accessToken;
 
     return request(app.getHttpServer())
       .post('/organizations')
@@ -30,12 +32,12 @@ describe('Organization (e2e)', () => {
   });
 
   it('Non-member cannot access organization', async () => {
-    const userOne = await request(app.getHttpServer())
+    const userOneResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({ email: 'test1@e2e.com', password: 'Testpassword#1' })
       .expect(201);
 
-    const userOneToken = userOne.body.accessToken;
+    const { accessToken: userOneToken } = userOneResponse.body as AuthResponse;
 
     const organizationResponse = await request(app.getHttpServer())
       .post('/organizations')
@@ -43,19 +45,20 @@ describe('Organization (e2e)', () => {
       .send({ name: 'Test Organization' })
       .expect(201);
 
-    const organizationId = organizationResponse.body.organization.id;
+    const organization = organizationResponse.body as OrganizationResponse;
 
     const nonMemberResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({ email: 'test2@e2e.com', password: 'Testpassword#1' })
       .expect(201);
 
-    const nonMemberToken = nonMemberResponse.body.accessToken;
+    const { accessToken: nonMemberToken } =
+      nonMemberResponse.body as AuthResponse;
 
     return request(app.getHttpServer())
-      .get(`/organizations/${organizationId}`)
+      .get(`/organizations/${organization.id}`)
       .set('Authorization', `Bearer ${nonMemberToken}`)
-      .set('x-org-id', `${organizationId}`)
+      .set('x-org-id', `${organization.id}`)
       .expect(403);
   });
 
@@ -65,7 +68,7 @@ describe('Organization (e2e)', () => {
       .send({ email: 'test3@e2e.com', password: 'Testpassword#1' })
       .expect(201);
 
-    const accessToken = registerResponse.body.accessToken;
+    const { accessToken } = registerResponse.body as AuthResponse;
 
     const organizationResponse = await request(app.getHttpServer())
       .post('/organizations')
@@ -73,12 +76,12 @@ describe('Organization (e2e)', () => {
       .send({ name: 'Test Organization' })
       .expect(201);
 
-    const organizationId = organizationResponse.body.organization.id;
+    const organization = organizationResponse.body as OrganizationResponse;
 
     return request(app.getHttpServer())
-      .get(`/organizations/${organizationId}`)
+      .get(`/organizations/${organization.id}`)
       .set('Authorization', `Bearer ${accessToken}`)
-      .set('x-org-id', organizationId)
+      .set('x-org-id', organization.id)
       .expect(200);
   });
 });
