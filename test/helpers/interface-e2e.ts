@@ -1,14 +1,32 @@
-import { Organization, Project, Task, User } from 'generated/prisma/client';
-
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
 }
 
-export interface OrganizationResponse extends Organization {}
+export interface OrganizationResponse {
+  id: string;
+  name: string;
+  slug: string;
+  createdAt: string;
+}
 
-export interface ProjectResponse extends Project {}
+export interface ProjectResponse {
+  id: string;
+  name: string;
+  organizationId: string;
+}
 
-export interface MeResponse extends User {}
+export interface MeResponse {
+  id: string;
+  email: string;
+}
 
-export interface TaskResponse extends Task {}
+export interface TaskResponse {
+  id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  assigneeId: string;
+  projectId: string;
+  organizationId: string;
+}
